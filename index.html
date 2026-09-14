@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lucinda tesi OC - Diario di bordo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #fafafa;
+      --card-bg: #ffffff;
+      --text: #222222;
+      --muted: #666666;
+      --border: #e6e6e6;
+      --accent: #2563eb;
+      --accent-soft: #eff6ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .description {
+      font-size: 0.9rem;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .entries {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Stile per ogni blocco data/settimana */
+    details {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    details[open] {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      border-color: #cbd5e1;
+    }
+
+    summary {
+      list-style: none;
+      text-align: center;
+      padding: 14px 20px;
+      font-weight: 500;
+      font-size: 1rem;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      color: #111;
+      transition: background 0.15s ease;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    summary:hover {
+      background-color: #f8fafc;
+    }
+
+    summary .badge {
+      font-size: 0.75rem;
+      color: var(--accent);
+      background-color: var(--accent-soft);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+
+    .content {
+      padding: 18px 24px 24px;
+      border-top: 1px solid var(--border);
+      text-align: left;
+      font-size: 0.92rem;
+    }
+
+    .content h3 {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+
+    .content h3:first-child {
+      margin-top: 0;
+    }
+
+    .content ul {
+      padding-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    .content li {
+      margin-bottom: 4px;
+    }
+
+    .content a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .content a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 50px;
+      font-size: 0.8rem;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Lucinda tesi OC</h1>
+      <p class="subtitle">Diario di bordo di <strong>Silvia Antonella Pellicano</strong>, studentessa DHDK</p>
+      <p class="description">Avanzamento settimanale del lavoro di tesi sul tool Lucinda per OpenCitations (OC).</p>
+    </header>
+
+    <main class="entries">
+
+      <!-- SETTIMANA 2 -->
+      <details open>
+        <summary>
+          25/09/2026 <span class="badge">Ultima settimana</span>
+        </summary>
+        <div class="content">
+          <h3>Attività completate</h3>
+          <ul>
+            <li>...</li>
+            <li>...</li>
+          </ul>
+
+          <h3>Criticità & Note</h3>
+          <p>...</p>
+
+          <h3>Obiettivi per la prossima settimana</h3>
+          <ul>
+            <li>...</li>
+            <li>...</li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- SETTIMANA 1 -->
+      <details>
+        <summary>18/09/2026</summary>
+        <div class="content">
+          <h3>Attività completate</h3>
+          <ul>
+            <li>...</li>
+            <li>...</li>
+            <li>...</li>
+          </ul>
+
+          <h3>Link utili</h3>
+          <p><a href="https://github.com/opencitations/lucinda" target="_blank" rel="noopener">Repository Lucinda su GitHub</a></p>
+        </div>
+      </details>
+
+    </main>
+
+    <footer>
+      <p>Aggiornato periodicamente per il monitoraggio</p>
+    </footer>
+  </div>
+
+</body>
+</html>
