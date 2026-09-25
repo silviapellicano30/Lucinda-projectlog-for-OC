@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   
   <style>
-    :root {
+        :root {
      --bg: #fbf5f7;          
      --card-bg: #ffffff;     
      --text: #2c2528;        
@@ -17,7 +17,7 @@
      --border: #f0e2e7;      
      --accent: #a82d68;      
      --accent-soft: #f8e6ee; 
-}
+    }
 
     * {
       box-sizing: border-box;
@@ -30,12 +30,13 @@
       background-color: var(--bg);
       color: var(--text);
       line-height: 1.6;
-      padding: 40px 20px;
+      padding: 40px 16px;        /* ridotto il padding laterale */
     }
 
     .container {
-      max-width: 680px;
+      max-width: 980px;          /* era 680px, ora più largo */
       margin: 0 auto;
+      width: 100%;
     }
 
     header {
@@ -61,7 +62,7 @@
     .description {
       font-size: 0.9rem;
       color: var(--muted);
-      max-width: 520px;
+      max-width: 700px;
       margin: 0 auto;
     }
 
@@ -119,10 +120,10 @@
     }
 
     .content {
-      padding: 18px 24px 24px;
+      padding: 20px 28px 28px;   /* leggermente più padding interno */
       border-top: 1px solid var(--border);
       text-align: left;
-      font-size: 0.92rem;
+      font-size: 0.95rem;
     }
 
     .content h3 {
@@ -130,8 +131,8 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: var(--muted);
-      margin-top: 14px;
-      margin-bottom: 6px;
+      margin-top: 18px;
+      margin-bottom: 8px;
     }
 
     .content h3:first-child {
@@ -139,12 +140,12 @@
     }
 
     .content ul {
-      padding-left: 20px;
+      padding-left: 22px;
       margin-bottom: 12px;
     }
 
     .content li {
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
     .content a {
@@ -156,11 +157,47 @@
       text-decoration: underline;
     }
 
+    /* Stile per i blocchi di codice scuri */
+    .content pre {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 12px 0;
+      overflow-x: auto;
+      font-family: Consolas, Monaco, 'Courier New', monospace;
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+
+    .content pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      font-size: inherit;
+    }
+
+    /* Codice inline (dentro il testo) */
+    .content code {
+      background: #f3eef1;
+      color: #a82d68;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: Consolas, Monaco, 'Courier New', monospace;
+      font-size: 0.85em;
+    }
+
     footer {
       text-align: center;
       margin-top: 50px;
       font-size: 0.8rem;
       color: #999;
+    }
+
+    @media (max-width: 700px) {
+      body { padding: 24px 10px; }
+      .content { padding: 16px 18px 20px; }
+      .content pre { font-size: 0.75rem; padding: 10px 12px; }
     }
   </style>
 </head>
@@ -171,54 +208,162 @@
       <h1>Lucinda tesi OC</h1>
       <p class="subtitle">Logbook di <strong>Silvia Antonella Pellicano</strong>, studentessa DHDK</p>
       <p class="description">Avanzamento settimanale del lavoro di tesi sul tool Lucinda per OpenCitations (OC).</p>
+      <p>https://github.com/silviapellicano30/lucinda-oscar-tesi</p>
     </header>
 
     <main class="entries">
 
-      <!-- SETTIMANA 2 -->
-      <details open>
-        <summary>
-          25/09/2026
-        </summary>
-        <div class="content">
-          <h3>Attività completate</h3>
-          <ul>
-            <li>...</li>
-            <li>...</li>
-          </ul>
-
-          <h3>Criticità & Note</h3>
-          <p>...</p>
-
-          <h3>Obiettivi per la prossima settimana</h3>
-          <ul>
-            <li>...</li>
-            <li>...</li>
-          </ul>
-        </div>
-      </details>
-
       <!-- SETTIMANA 1 -->
-      <details>
-        <summary>18/09/2026</summary>
-        <div class="content">
-          <h3>Attività completate</h3>
-          <ul>
-            <li>...</li>
-            <li>...</li>
-            <li>...</li>
-          </ul>
+<details open>
+  <summary>
+    28/09/2026
+  </summary>
+  <div class="content">
 
-          <h3>Criticità & Note</h3>
-          <p>...</p>
+    <h3>Attività completate</h3>
+    <ul>
+      <li>
+        <strong>Rilassamento del vincolo <code>#sparql</code> in <code>lucinda.js</code></strong>: fa partire il rendering quando il file .hf ha un solo blocco main (o nessuno) e quindi non ci sono query di alcun tipo o quando il file .hf ha più di un blocco, ma nessuno di questi ha <code>#sparql</code>. 
 
-          <h3>Obiettivi per la prossima settimana</h3>
-          <ul>
-            <li>...</li>
-            <li>...</li>
-          </ul>
+        <div style="background:#1e1e1e; color:#d4d4d4; border-radius:8px; padding:14px 18px; margin:12px 0; overflow-x:auto; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; line-height:1.5;">
+<pre style="margin:0;"><div style="background:#1e1e1e; color:#d4d4d4; border-radius:8px; padding:14px 18px; margin:12px 0; overflow-x:auto; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; line-height:1.5;">
+<pre style="margin:0;"><code>// In _do_queries()
+
+if (current_resource_hfconf.length &lt;= 1) {
+  if(Lucinda.conf.verbose){console.log("Warning: no queries are specified");}
+  <span style="background-color:#ffcdf3; color:#1e1e1e;">// SILVIA 
+  return null;</span>
+}
+
+// ...
+
+const l_callsparql = Lucinda_util.get_hf_callsparql(current_resource_hfconf);
+<span style="background-color:#ffcdf3; color:#1e1e1e;">// SILVIA 
+if (l_callsparql.length === 0) {
+  Lucinda.build_success_html_page();
+  return null;
+}</span>
+</pre>
+</code>
+</div></pre>
         </div>
-      </details>
+      </li>
+
+      <li>
+        <strong>Ricerca autori --> SKG-IF</strong>
+        <ul>
+          <li>
+            <strong>Semplificazione del file <code>.hf</code></strong> (<code>aut_free_text.hf</code>)
+
+            <div style="background:#1e1e1e; color:#d4d4d4; border-radius:8px; padding:14px 18px; margin:12px 0; overflow-x:auto; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; line-height:1.5;">
+<pre style="margin:0;"><code>#id main
+#url value=author/{search_query}
+
+#id api_search
+#callfun api_search_author_skgif()</code></pre>
+            </div>
+          </li>
+
+          <li>
+            <strong>Semplificazione del file <code>.html</code></strong> (<code>aut_free_text.html</code>)
+
+            <div style="background:#1e1e1e; color:#d4d4d4; border-radius:8px; padding:14px 18px; margin:12px 0; overflow-x:auto; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; line-height:1.5;">
+<pre style="margin:0;"><code>&lt;br&gt;
+&lt;div class="mb-3"&gt;
+  &lt;a href="http://127.0.0.1:5500/example/oc/html_template/home.html" class="btn btn-sm"&gt;
+    &lt;i class="fas fa-arrow-left"&gt;&lt;/i&gt; Home
+  &lt;/a&gt;
+&lt;/div&gt;
+&lt;div class="row"&gt;
+
+  &lt;div class="col-12 mb-4"&gt;
+    &lt;div class="card shadow-sm p-3 h-100"&gt;
+      &lt;div class="card-header text-center"&gt;
+        &lt;h3 class="my-0"&gt;&lt;span id="search-total-count"&gt;&lt;/span&gt; Results for: &lt;span class="fw-bold"&gt;[[Lucinda:remove_percent(main.search_query)]]&lt;/span&gt;&lt;/h3&gt;
+        &lt;p class="mb-0"&gt;Responsable Agent Records&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;div class="row" id="search-results-container"&gt;&lt;/div&gt;</code></pre>
+            </div>
+          </li>
+        </ul>
+      </li>
+      <li>
+            <strong>Funzione</strong> <code>api_search_author_skgif</code>
+<p style="margin-top:10px;"><span style="color:#b91c1c; font-weight:600;">da gestire:</span></p>
+            <ul>
+              <li><strong>1:</strong> <code>limite nel filtro cf.search.name</code></li>
+              <li><strong>2:</strong> SKG-IF non supporta OR tra <code>given_name</code> e <code>family_name</code> (1 parola 2 chiamate)</li>
+            </ul>
+
+            <p><span style="color:#15803d; font-weight:600;">gestione per casi:</span></p>
+            <ul>
+              <li><strong>1 termine:</strong>nome o cognome? 3 chiamate (given_name, family_name, overlap). Le prime due diventano fonti concatenate; la terza serve per il conteggio esatto.</li>
+              <li><strong>2+ termini:</strong>quale nome e quale cognome? tentativi con split diversi e scelta degli split</li>
+              <li><strong>Fallback:</strong> se nessuno split ha match esatto, si usano tutti gli split (più rumore, ma si mostra qualcosa).</li>
+              <li><strong>5+ termini:</strong> solo split standard, per limitare le richieste.</li>
+            </ul>
+          </li>
+      <li><strong>Implementazione del paginator generico</strong> (<code>createSkgifPaginatedSearch</code>): riutilizzabile per documenti e riviste.</li>
+      <li><strong>Assorbimento di preprocessing e postprocessing</strong> nelle funzioni <code>api_search_author_skgif()</code>, <code>_renderAuthorCard()</code> e <code>_rankAuthorsByQuery()</code>.</li>
+      <li><strong>Cache delle risposte SKG-IF</strong> (<code>_skgifResponseCache</code>) per evitare fetch duplicate.</li>
+      <li><strong>Meccanismo hold/release</strong> per evitare il flash di template vuoto.</li>
+    </ul>
+
+
+    <h3>Analisi: gestione del JSON e pre/post processing</h3>
+    <p>
+      <span style="color:#1d4ed8; font-weight:600;">Nota:</span>
+      il JSON-LD è trattato direttamente come JSON, senza conversioni in matrici o triple RDF. Le risposte vengono lette in <code>skgifFetch()</code>, <code>skgifTotal()</code>, <code>itemsForPage()</code> e <code>_renderAuthorCard()</code>.
+    </p>
+    <p>
+      <span style="color:#15803d; font-weight:600;">Soluzione:</span>
+      preprocessing assorbito in <code>api_search_author_skgif()</code>; postprocessing assorbito in <code>_renderAuthorCard()</code> e <code>_rankAuthorsByQuery()</code>. Non ci sono più fasi separate nel <code>.hf</code>.
+    </p>
+
+    <h3>Analisi: il doppio conteggio</h3>
+    <p>
+      <span style="color:#b91c1c; font-weight:600;">Problema:</span>
+      per un singolo termine, le due liste (given_name e family_name) sono concatenate e una persona può comparire in entrambe (overlap). Il conteggio rischia di essere gonfiato.
+    </p>
+    <p>
+      <span style="color:#15803d; font-weight:600;">Soluzione:</span>
+      due variabili distinte.
+    </p>
+    <ul>
+      <li><code>listedTotal</code> = somma dei totali delle fonti (es. 29.997) → usato per la paginazione.</li>
+      <li><code>displayTotal</code> = <code>listedTotal - overlap</code> (es. 29.996) → usato per il titolo.</li>
+    </ul>
+
+    <h3>Analisi: paginator, cache, hold/release</h3>
+    <ul>
+      <li><strong>Paginator</strong> (<code>createSkgifPaginatedSearch</code>): funzione generica e riutilizzabile per qualsiasi risorsa SKG-IF. Gestisce totali, item per pagina, deduplica, ranking, rendering e conteggio.</li>
+      <li><strong>Cache</strong> (<code>_skgifResponseCache</code>): evita fetch duplicate (la pagina 1 di ogni fonte viene fetchata due volte, per i totali e per gli item).</li>
+      <li><strong>hold/release</strong>: <code>holdSkgifPage()</code> nasconde il template e mostra il banner di caricamento; <code>releaseSkgifPage()</code> lo rimuove e mostra il template completo. Evita il flash di template vuoto.</li>
+    </ul>
+
+    <h3>Criticità &amp; Note</h3>
+    <ul>
+      <li><span style="color:#b91c1c; font-weight:600;">Limite noto:</span> SKG-IF cerca per singole parole. I cognomi composti (es. "De Rosa", "Van De Cruys") possono dare risultati parziali.</li>
+      <li><span style="color:#b91c1c; font-weight:600;">Limite noto:</span> la deduplica avviene solo all'interno della stessa pagina, quindi un duplicato può comparire su pagine diverse.</li>
+      <li><span style="color:#b91c1c; font-weight:600;">Limite noto:</span> gli accenti non vengono normalizzati.</li>
+      <li><span style="color:#b91c1c; font-weight:600;">Limite noto:</span> per 5+ termini si usa solo lo split standard.</li>
+      <li><span style="color:#1d4ed8; font-weight:600;">Nota:</span> <code>cf.search.name</code> è elencato nella documentazione SKG-IF ma non funziona su OpenCitations per le persone.</li>
+    </ul>
+
+    <h3>Q</h3>
+    <ul>
+      <li></li>
+    </ul>
+
+    
+
+  </div>
+</details>
 
     </main>
   </div>
