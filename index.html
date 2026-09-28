@@ -377,12 +377,8 @@ if (l_callsparql.length === 0) {
 <ul>
   <li>
     <span style="color:#15803d; font-weight:600;">Fatto:</span>
-    1 termine, 2+ termini (split e rotazioni), ricerca case insensitive, gestione spaziatura multipla, paginazione, conteggio.
+    1 termine, 2+ termini (split e rotazioni), ricerca case insensitive, gestione spaziatura multipla, paginazione, conteggio, gestione accentazione (_foldAccents() per togliere gli accenti e _authorSplitVariants() che per ogni split genera versione con e senza accenti) e caratteri speciali come l'apostrofo (prima divisione della query sugli spazi e poi pulizia di ogi parola prima di scrivere url che va all'api con funzione _skgifSafeTerm() che sostiusce car special in spazi).
   </li>
-  <li>
-    <span style="color:#b91c1c; font-weight:600;">Da fare:</span>
-    normalizzazione degli accenti 
-  <li>
     <span style="color:#b91c1c; font-weight:600;">?</span>
     <ul>
       <li><strong>ricerca solo 2 nomi</strong></li>
@@ -395,7 +391,11 @@ if (l_callsparql.length === 0) {
     <h3>Q</h3>
     <ul>
       <li>ricerca doc e venues mantenere stesse info nei templates di Pietro?</li>
+      <li>veirficare funzionamento ricerca per ORCID nella author free text search</li>
+      <li>oridnamaneto dei risultati quando la rocerca usa piu fonti (un solo termine, accento)</li>
+      <li>risorsa skgif organisations (aggiungo free text research e scheda)?</li>
       <li>tirocimnio</li>
+      <li></li>
     </ul>
 
     
