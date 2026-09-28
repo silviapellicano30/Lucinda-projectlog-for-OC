@@ -294,70 +294,108 @@ if (l_callsparql.length === 0) {
       </li>
       <li>
             <strong>Funzione</strong> <code>api_search_author_skgif</code>
-<p style="margin-top:10px;"><span style="color:#b91c1c; font-weight:600;">da gestire:</span></p>
+<p style="margin-top:10px;"><span style="color:#b91c1c; font-weight:600;">limiti:</span></p>
             <ul>
-              <li><strong>1:</strong> <code>limite nel filtro cf.search.name</code></li>
+              <li><strong>1:</strong> limite nel filtro <code>cf.search.name</code></li>
               <li><strong>2:</strong> SKG-IF non supporta OR tra <code>given_name</code> e <code>family_name</code> (1 parola 2 chiamate)</li>
             </ul>
 
             <p><span style="color:#15803d; font-weight:600;">gestione per casi:</span></p>
             <ul>
-              <li><strong>1 termine:</strong>nome o cognome? 3 chiamate (given_name, family_name, overlap). Le prime due diventano fonti concatenate; la terza serve per il conteggio esatto.</li>
-              <li><strong>2+ termini:</strong>quale nome e quale cognome? tentativi con split diversi e scelta degli split</li>
-              <li><strong>Fallback:</strong> se nessuno split ha match esatto, si usano tutti gli split (più rumore, ma si mostra qualcosa).</li>
+              <li><strong>1 termine:</strong>nome o cognome? 3 chiamate (given_name, family_name, overlap). Le prime due diventano fonti concatenate; la terza serve per il conteggio esatto (<code>displayTotal</code>).</li>
+              <li><strong>2+ termini:</strong>quale nome e quale cognome? tentativi con split diversi e scelta degli split con match esatto</li>
+              <li>se nessuno split ha match esatto, si usano i risultati parziali</li>
               <li><strong>5+ termini:</strong> solo split standard, per limitare le richieste.</li>
             </ul>
           </li>
-      <li><strong>Implementazione del paginator generico</strong> (<code>createSkgifPaginatedSearch</code>): riutilizzabile per documenti e riviste.</li>
-      <li><strong>Assorbimento di preprocessing e postprocessing</strong> nelle funzioni <code>api_search_author_skgif()</code>, <code>_renderAuthorCard()</code> e <code>_rankAuthorsByQuery()</code>.</li>
-      <li><strong>Cache delle risposte SKG-IF</strong> (<code>_skgifResponseCache</code>) per evitare fetch duplicate.</li>
-      <li><strong>Meccanismo hold/release</strong> per evitare il flash di template vuoto.</li>
+      <li>
+  <strong>Implementazione del paginator generico</strong> (<code>createSkgifPaginatedSearch</code>)
+  <ul>
+    <li>
+      <strong>Calcolo dei conteggi.</strong> Il paginator gestisce <em>due</em> conteggi distinti, perché possono esserci più fonti e possono contenere duplicati (overlap).  Si attiva solo quando c'è più di una fonte e potenziale sovrapposizione:
+      <ul>
+        <li><code>listedTotal</code>: somma dei <code>total_items</code> di ogni fonte. --> Calcolare il <strong>numero di pagine</strong>.</li>
+        <li><code>displayTotal</code>: <code>listedTotal − overlap</code>. --> Counting dei risultati da mostrare all'utente. Scrittura del conteggio nel titolo</strong> tramite <code>showCount()</code></li>
+      </ul>
+    </li>
+    <li>
+      <strong>Selezione degli item per la pagina richiesta</strong>, concatenando le fonti quando necessario
+    </li>
+    <li>
+      <strong>Precauzione: deduplica degli item all'interno della stessa pagina</strong>, usando <code>dedupeKey</code> (di solito <code>local_identifier</code>). La deduplica tra pagine diverse non è garantita.
+    </li>
+    <li>
+      <strong>Ordinamento dei risultati</strong> tramite <code>rankItems</code> (es. <code>_rankAuthorsByQuery</code>), che mette i match esatti in cima. Se il parametro opzionale <code>rankItems</code> non viene fornito, i risultati restano nell'ordine originale restituito da SKG-IF
+    </li>
+    <li>
+      <strong>Rendering</strong> dell'HTML delle card tramite <code>renderItem</code> (es. <code>_renderAuthorCard</code>) e della barra di paginazione.
+    </li>
+    <li>
+  <strong>Navigazione tra le pagine</strong>: pulsanti First, Previous, Next, Last e input numerico per saltare a una pagina specifica (gestiti dai listener globali su <code>.skgif-page-btn</code> e <code>.skgif-page-input</code>).
+
+  <figure style="margin:16px 0; text-align:center;">
+    <img src="img/paginazione.png"
+         alt="Barra di paginazione con pulsanti First, Previous, Next, Last e input per il numero di pagina"
+         style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
+    <figcaption style="font-size:0.85rem; color:#73676c; margin-top:6px;">
+      Figura 1 — Barra di paginazione generata dal paginator (stile definito in <code>browser.css</code>).
+    </figcaption>
+  </figure>
+</li>
+    <li>
+      <strong>Ottimizzazione: uso della cache</strong> (<code>_skgifResponseCache</code>) per evitare di rifare le stesse chiamate SKG-IF più volte nella stessa sessione
+    </li>
+    <li>
+      <strong>Meccanismo hold/release del template</strong>: chiama <code>releaseSkgifPage()</code> quando i dati sono pronti, per mostrare il template completo senza far vedere template vuoto in attesa dei dati.
+    </li>
+  </ul>
+</li>
     </ul>
 
 
-    <h3>Analisi: gestione del JSON e pre/post processing</h3>
-    <p>
-      <span style="color:#1d4ed8; font-weight:600;">Nota:</span>
-      il JSON-LD è trattato direttamente come JSON, senza conversioni in matrici o triple RDF. Le risposte vengono lette in <code>skgifFetch()</code>, <code>skgifTotal()</code>, <code>itemsForPage()</code> e <code>_renderAuthorCard()</code>.
-    </p>
-    <p>
-      <span style="color:#15803d; font-weight:600;">Soluzione:</span>
-      preprocessing assorbito in <code>api_search_author_skgif()</code>; postprocessing assorbito in <code>_renderAuthorCard()</code> e <code>_rankAuthorsByQuery()</code>. Non ci sono più fasi separate nel <code>.hf</code>.
-    </p>
-
-    <h3>Analisi: il doppio conteggio</h3>
-    <p>
-      <span style="color:#b91c1c; font-weight:600;">Problema:</span>
-      per un singolo termine, le due liste (given_name e family_name) sono concatenate e una persona può comparire in entrambe (overlap). Il conteggio rischia di essere gonfiato.
-    </p>
-    <p>
-      <span style="color:#15803d; font-weight:600;">Soluzione:</span>
-      due variabili distinte.
-    </p>
+    <h3>Notes</h3>
+<ul>
+  <li>
+    <span style="color:#1d4ed8; font-weight:600;">Trattamento del JSON-LD:</span>
+    il JSON-LD è letto come JSON, accessibile tramite notazione a punti o notazione a parentesi quadre.
+  </li>
+  <li>
+    <span style="color:#15803d; font-weight:600;">Preprocessing e postprocessing:</span>
+    assorbiti nella logica di <code>api_search_author_skgif()</code> e delle funzioni che chiama.
     <ul>
-      <li><code>listedTotal</code> = somma dei totali delle fonti (es. 29.997) → usato per la paginazione.</li>
-      <li><code>displayTotal</code> = <code>listedTotal - overlap</code> (es. 29.996) → usato per il titolo.</li>
+      <li>
+        <strong>Preprocessing</strong> → : <code>api_search_author_skgif(), _authorNameSplits(), splitSource() costruzione url..</code> lettura e pulizia del testo digitato nella barra di ricerca (<code>search_query</code>), elaborazione (divisione in termini, split, costruzione URL) trasformazionne negli URL SKG-IF da chiamare.
+      </li>
+      <li>
+        <strong>Postprocessing</strong> → in <code>_renderAuthorCard()</code> e <code>_rankAuthorsByQuery()</code>: lettura campi di JSON-LD, trattandolo come oggetto JSON (es. <code>given_name</code>, <code>family_name</code>, <code>identifiers</code>), genera l'HTML delle card e ordina i risultati.
+      </li>
     </ul>
+  </li>
+</ul>
 
-    <h3>Analisi: paginator, cache, hold/release</h3>
+<h3>Gestione della ricerca autori</h3>
+<ul>
+  <li>
+    <span style="color:#15803d; font-weight:600;">Fatto:</span>
+    1 termine, 2+ termini (split e rotazioni), ricerca case insensitive, gestione spaziatura multipla, paginazione, conteggio.
+  </li>
+  <li>
+    <span style="color:#b91c1c; font-weight:600;">Da fare:</span>
+    normalizzazione degli accenti 
+  <li>
+    <span style="color:#b91c1c; font-weight:600;">?</span>
     <ul>
-      <li><strong>Paginator</strong> (<code>createSkgifPaginatedSearch</code>): funzione generica e riutilizzabile per qualsiasi risorsa SKG-IF. Gestisce totali, item per pagina, deduplica, ranking, rendering e conteggio.</li>
-      <li><strong>Cache</strong> (<code>_skgifResponseCache</code>): evita fetch duplicate (la pagina 1 di ogni fonte viene fetchata due volte, per i totali e per gli item).</li>
-      <li><strong>hold/release</strong>: <code>holdSkgifPage()</code> nasconde il template e mostra il banner di caricamento; <code>releaseSkgifPage()</code> lo rimuove e mostra il template completo. Evita il flash di template vuoto.</li>
+      <li><strong>ricerca solo 2 nomi</strong></li>
+      <li><strong>ricerca solo 2 cognomi</strong></li>
     </ul>
+  </li>
+</ul>
 
-    <h3>Criticità &amp; Note</h3>
-    <ul>
-      <li><span style="color:#b91c1c; font-weight:600;">Limite noto:</span> SKG-IF cerca per singole parole. I cognomi composti (es. "De Rosa", "Van De Cruys") possono dare risultati parziali.</li>
-      <li><span style="color:#b91c1c; font-weight:600;">Limite noto:</span> la deduplica avviene solo all'interno della stessa pagina, quindi un duplicato può comparire su pagine diverse.</li>
-      <li><span style="color:#b91c1c; font-weight:600;">Limite noto:</span> gli accenti non vengono normalizzati.</li>
-      <li><span style="color:#b91c1c; font-weight:600;">Limite noto:</span> per 5+ termini si usa solo lo split standard.</li>
-      <li><span style="color:#1d4ed8; font-weight:600;">Nota:</span> <code>cf.search.name</code> è elencato nella documentazione SKG-IF ma non funziona su OpenCitations per le persone.</li>
-    </ul>
 
     <h3>Q</h3>
     <ul>
-      <li></li>
+      <li>ricerca doc e venues mantenere stesse info nei templates di Pietro?</li>
+      <li>tirocimnio</li>
     </ul>
 
     
