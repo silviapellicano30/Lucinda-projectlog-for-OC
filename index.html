@@ -402,6 +402,785 @@ if (l_callsparql.length === 0) {
 
   </div>
 </details>
+<!-- SETTIMANA 2 -->
+<details open>
+  <summary>
+    05/10/2026
+  </summary>
+  <div class="content">
+
+    <!-- ===================== RICERCA AUTORI ===================== -->
+    <h3>Ricerca autori</h3>
+    <ul>
+      <li>
+        <strong>Nuovo form di ricerca</strong> (<code>home.html</code>, <code>home.js</code>): selezionando "Author" la barra unica viene sostituita da tre campi: <strong>Given name</strong>, <strong>Family name</strong> e, in alternativa, <strong>ORCID</strong>.
+        <ul>
+          <li>Compilando nome/cognome il campo ORCID si disattiva, e viceversa: le due modalità di ricerca non si mescolano.</li>
+          <li>Un ORCID scritto per sbaglio in un campo nome viene comunque riconosciuto e cercato come ORCID.</li>
+          <li>Al click su Search, <code>skgifAuthorSearch()</code> costruisce l'URL della pagina risultati con i campi compilati:</li>
+        </ul>
+
+        <div style="background:#1e1e1e; color:#d4d4d4; border-radius:8px; padding:14px 18px; margin:12px 0; overflow-x:auto; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; line-height:1.5;">
+<pre style="margin:0;"><code>// home.js - skgifAuthorSearch()
+if (orcid) {
+  params = new URLSearchParams({ orcid });
+} else if (given || family) {
+  params = new URLSearchParams();
+  if (given) params.set("given", given);
+  if (family) params.set("family", family);
+}
+// -> browser.html?value=author/given=Silvio&amp;family=Peroni
+// -> browser.html?value=author/orcid=0000-0003-0530-4305</code></pre>
+        </div>
+      </li>
+
+      <li>
+        <strong>File <code>.hf</code></strong> (<code>aut_free_text.hf</code>): invariato rispetto alla settimana scorsa (solo <code>main</code> + <code>#callfun</code>).
+      </li>
+
+      <li>
+        <strong>Titolo dei risultati</strong> (<code>aut_free_text.html</code>): il <code>search_query</code> ora è codificato (<code>given=...&amp;family=...</code>), quindi non può essere stampato direttamente con <code>remove_percent</code>. Il titolo viene scritto via JS in <code>#search-query-label</code> in forma leggibile, es. <em>"Given name: Silvio · Family name: Peroni"</em> oppure <em>"ORCID: 0000-..."</em>.
+
+        <div style="background:#1e1e1e; color:#d4d4d4; border-radius:8px; padding:14px 18px; margin:12px 0; overflow-x:auto; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; line-height:1.5;">
+<pre style="margin:0;"><code>&lt;h3 class="my-0"&gt;&lt;span id="search-total-count"&gt;&lt;/span&gt; Results for: &lt;span class="fw-bold" <span style="background-color:#ffcdf3; color:#1e1e1e;">id="search-query-label"</span>&gt;&lt;/span&gt;&lt;/h3&gt;</code></pre>
+        </div>
+      </li>
+
+      <li>
+        <strong>Funzione</strong> <code>api_search_author_skgif()</code> (<code>localbrowser.js</code>, sezione 3): legge i campi dall'URL (<code>_authorSearchFields()</code>), scrive il titolo e costruisce le chiamate a <code>/persons</code>:
+        <ul>
+          <li><strong>nome e/o cognome</strong> → <code>/persons?filter=cf.search.given_name:...,cf.search.family_name:...</code> (la virgola è un AND)</li>
+          <li><strong>ORCID</strong> → <code>/persons?filter=identifiers.id:&lt;orcid&gt;</code></li>
+        </ul>
+
+        <div style="background:#1e1e1e; color:#d4d4d4; border-radius:8px; padding:14px 18px; margin:12px 0; overflow-x:auto; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; line-height:1.5;">
+<pre style="margin:0;"><code>if (fields.orcid) {
+  sources = [`${base}?filter=identifiers.id:${encodeURIComponent(fields.orcid)}`];
+} else {
+  // un filtro per ogni campo compilato, per ogni grafia (come scritta, senza accenti)
+  spellings(fields.given).forEach(given =&gt; spellings(fields.family).forEach(family =&gt; {
+    const filters = [];
+    if (given)  filters.push(`cf.search.given_name:${apiTerm(given)}`);
+    if (family) filters.push(`cf.search.family_name:${apiTerm(family)}`);
+    sources.push(`${base}?filter=${filters.join(',')}`);
+  }));
+}</code></pre>
+        </div>
+
+        <p><span style="color:#15803d; font-weight:600;">cosa cambia rispetto alla settimana scorsa:</span></p>
+        <ul>
+          <li><strong>Niente più split e rotazioni</strong>: l'utente indica già cosa è nome e cosa è cognome, non serve più provare le combinazioni dei termini.</li>
+          <li><strong>Niente più overlap</strong>: le fonti non si sovrappongono, quindi non serve la chiamata extra per il conteggio. Il paginator usa solo <code>listedTotal</code> (somma dei <code>total_items</code>); <code>displayTotal</code> e l'overlap sono stati rimossi.</li>
+          <li><strong>Una chiamata per grafia</strong>: senza accenti (o con ORCID) c'è una sola fonte; con accenti si aggiunge la variante senza accenti (2 fonti, fino a 4 se nome e cognome sono entrambi accentati).</li>
+          <li>Il ranking (<code>_rankAuthorsByQuery()</code>) e le card (<code>_renderAuthorCard()</code>) sono invariati.</li>
+        </ul>
+
+        <p><span style="color:#15803d; font-weight:600;">funzionalità supportate:</span></p>
+        <ul>
+          <li>ricerca per nome + cognome, solo nome, solo cognome</li>
+          <li>iniziali / nomi abbreviati: "Peroni" + "S" funziona (<code>cf.search.*</code> cerca l'inizio delle parole)</li>
+          <li>ricerca per ORCID (anche con prefisso <code>orcid:</code> o URL <code>https://orcid.org/...</code>)</li>
+          <li>cognomi composti: "Garcia Hierro" = "Garcia-Hierro" (27 risultati)</li>
+          <li>accenti: "Nicolò" cerca anche "Nicolo" (<code>_skgifSpellings()</code>)</li>
+          <li>caratteri speciali: "D'Angelo" funziona (<code>_skgifSafeTerm()</code>)</li>
+          <li>conteggio reale dei risultati, non più limitato a 100 come nella query SPARQL</li>
+        </ul>
+
+        <p style="margin-top:10px;"><span style="color:#b91c1c; font-weight:600;">limiti:</span></p>
+        <ul>
+          <li><strong>1:</strong> <code>cf.search.name</code> cerca un campo presente in pochi record ("Peroni": 1 con <code>name</code>, 1853 con <code>family_name</code>) → si usano <code>given_name</code>/<code>family_name</code></li>
+          <li><strong>2:</strong> accenti in una sola direzione: "Nicolò" (7097) e "Nicolo" (2158) sono insiemi disgiunti; da "Nicolò" si cerca anche "Nicolo", ma non il contrario (non si sa dove andrebbe l'accento)</li>
+          <li><strong>3:</strong> caratteri che rompono la richiesta (<code>, " ' \ * &amp; # %</code>: errori 422/500/502 o query troncata) → sostituiti con spazi; con <code>&amp;</code> e <code>#</code> il server sembra decodificare il filtro due volte (possibile bug dell'API)</li>
+          <li><strong>4:</strong> persone duplicate: lo stesso ORCID può corrispondere a più record (Peroni: 10), vengono mostrati tutti</li>
+          <li><strong>5:</strong> il ranking "match esatti in cima" vale all'interno della singola pagina, non su tutti i risultati</li>
+          <li><strong>6:</strong> con più grafie le fonti sono mostrate in sequenza: i risultati senza accento arrivano dopo tutti quelli con accento</li>
+        </ul>
+      </li>
+    </ul>
+
+    <!-- ===================== RICERCA DOCUMENTI ===================== -->
+     <!-- ===================== RICERCA DOCUMENTI ===================== -->
+    <h3>Ricerca documenti</h3>
+    <ul>
+      <li>
+        <strong>Prima e dopo</strong>
+        <ul>
+          <li><strong>Prima (Pietro):</strong> query SPARQL su Meta sul titolo (<code>bif:contains</code>, <strong>LIMIT 100</strong>) → <code>#postprocess</code> che raccoglie gli OMID → <code>api_search()</code> che chiama la REST API di Meta a gruppi di 20 OMID per avere i dati delle card.</li>
+          <li><strong>Ora:</strong> una sola richiesta SKG-IF <code>/products?filter=cf.search.title:&lt;testo&gt;</code>, che restituisce già tutti i dati della card e il totale reale.</li>
+        </ul>
+      </li>
+
+      <li>
+        <strong>Semplificazione del file <code>.hf</code></strong> (<code>doc_free_text.hf</code>): eliminato il blocco <code>search_ids</code> (SPARQL + <code>#preprocess remove_per</code> + <code>#postprocess post_search_ids</code>).
+
+        <div style="background:#1e1e1e; color:#d4d4d4; border-radius:8px; padding:14px 18px; margin:12px 0; overflow-x:auto; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; line-height:1.5;">
+<pre style="margin:0;"><code>#id main
+#url value=document/{search_query}
+
+#id api_search
+#callfun api_search_doc_skgif()</code></pre>
+        </div>
+      </li>
+
+      <li>
+        <strong>Modifiche al file <code>.html</code></strong> (<code>doc_free_text.html</code>)
+        <ul>
+          <li>conteggio: <code>[[Lucinda:pipe_count(search_ids.ids)]]</code> → <code>&lt;span id="search-total-count"&gt;</code>, riempito dal paginator</li>
+          <li>il titolo resta <code>[[Lucinda:remove_percent(main.search_query)]]</code>: la query è testo semplice, non serve JS</li>
+          <li>contenitore <code>row justify-content-center</code> → <code>row</code>: stessi margini delle card autori</li>
+          <li>corretto il refuso <code>calss</code> → <code>class</code></li>
+        </ul>
+
+        <div style="background:#1e1e1e; color:#d4d4d4; border-radius:8px; padding:14px 18px; margin:12px 0; overflow-x:auto; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; line-height:1.5;">
+<pre style="margin:0;"><code>&lt;h3 class="my-0"&gt;<span style="background-color:#ffcdf3; color:#1e1e1e;">&lt;span id="search-total-count"&gt;&lt;/span&gt;</span> Results for: &lt;span class="fw-bold"&gt;[[Lucinda:remove_percent(main.search_query)]]&lt;/span&gt;&lt;/h3&gt;
+&lt;p <span style="background-color:#ffcdf3; color:#1e1e1e;">class</span>="mb-0"&gt;Bibliographic Resource Records&lt;/p&gt;
+...
+&lt;div class="<span style="background-color:#ffcdf3; color:#1e1e1e;">row</span>" id="search-results-container"&gt;&lt;/div&gt;</code></pre>
+        </div>
+      </li>
+
+      <li>
+        <strong>Funzioni in <code>localbrowser.js</code></strong>
+        <p><span style="color:#1d4ed8; font-weight:600;">specifiche della ricerca documenti (sezione 4):</span></p>
+        <ul>
+          <li><code>api_search_doc_skgif()</code>: legge la query, la pulisce, crea una richiesta per ogni grafia e avvia il paginator</li>
+          <li><code>_renderDocumentCard()</code>: card del documento (titolo → scheda documento, autori con ORCID, identificativi, data, rivista con ISSN, pulsanti Go to References / Go to Citations). Riusata anche dalle liste di citazioni e riferimenti (sezione 5).</li>
+        </ul>
+
+        <div style="background:#1e1e1e; color:#d4d4d4; border-radius:8px; padding:14px 18px; margin:12px 0; overflow-x:auto; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; line-height:1.5;">
+<pre style="margin:0;"><code>function api_search_doc_skgif(...args) {
+  const query = _skgifSafeTerm(_skgifUrlParam(args[1], 'search_query'));
+  if (!query) {
+    _skgifShowMessage('No results found.');
+    return;
+  }
+
+  createSkgifPaginatedSearch({
+    sources: _skgifSpellings(query)
+      .map(q =&gt; `${SKGIF_API}/products?filter=cf.search.title:${encodeURIComponent(q)}`),
+    renderItem: _renderDocumentCard
+  }).search();
+}</code></pre>
+        </div>
+
+        <p><span style="color:#1d4ed8; font-weight:600;">generiche (riusate, condivise con le altre ricerche):</span></p>
+        <ul>
+          <li><strong>sezione 1:</strong> <code>createSkgifPaginatedSearch()</code> (totale, pagine, pulsanti, cache, hold/release del template)</li>
+          <li><strong>sezione 2, query:</strong> <code>_skgifUrlParam()</code>, <code>_skgifSafeTerm()</code>, <code>_skgifSpellings()</code>, <code>_skgifShowMessage()</code></li>
+          <li><strong>sezione 2, card:</strong> <code>_skgifOmid()</code>, <code>_skgifAgents()</code> (autori; usata anche per publisher/editor delle riviste), <code>_skgifIdList()</code>/<code>_skgifIdLink()</code> (identificativi ordinati e cliccabili), <code>_skgifEscape()</code></li>
+        </ul>
+        <p>→ la parte specifica sono solo 2 funzioni, il resto è codice comune.</p>
+      </li>
+
+      <li>
+        <strong>Ricerca per identificativo</strong> (<code>home.js</code>): <code>skgifIdToOmid()</code> sostituisce <code>idToOmid()</code> (SPARQL su Meta). Prende il primo record, come il vecchio <code>LIMIT 1</code>, e apre la scheda del documento.
+        <table style="border-collapse:collapse; margin:10px 0; font-size:0.9rem;">
+          <tr style="background:#f3f4f6;">
+            <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">Input</th>
+            <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">Filtro SKG-IF</th>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">DOI (<code>10.xxx/...</code> o <code>doi:...</code>)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><code>/products?filter=identifiers.scheme:doi,identifiers.id:&lt;doi&gt;&amp;page_size=1</code></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">PMID (<code>pmid:...</code>)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><code>/products?filter=identifiers.scheme:pmid,identifiers.id:&lt;pmid&gt;&amp;page_size=1</code></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">OpenAlex (<code>openalex:W...</code>)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><code>/products?filter=identifiers.scheme:openalex,identifiers.id:&lt;id&gt;&amp;page_size=1</code></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">OMID (<code>br/...</code>)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">nessuna chiamata: apre direttamente la scheda</td>
+          </tr>
+        </table>
+        <p>Corretta anche la regex dei prefissi Lucinda: prima <code>/^(br|ci|ra|ve):?/i</code> trattava come OMID qualunque testo che iniziasse con quelle lettere ("brain tumor", "Veterinary" → "No template is suitable"); ora <code>/^(br|ci|ra|ve)\/[\d-]+$/i</code>.</p>
+      </li>
+
+      <li>
+        <strong>Funzionalità supportate: API o nostro codice?</strong>
+        <table style="border-collapse:collapse; margin:10px 0; font-size:0.9rem;">
+          <tr style="background:#f3f4f6;">
+            <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">Funzionalità</th>
+            <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">Chi la fornisce</th>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">tutti i dati della card in una sola risposta</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>API</strong></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">totale reale (<code>total_items</code>, senza limite di 100)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>API</strong>; il paginator (generico) lo scrive nel titolo</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">ordine delle parole indifferente ("semantic web" = "web semantic", 10466)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>API</strong></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">ricerca per inizio di parola ("semant" → "semantic", "semantics")</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>API</strong></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">accenti ("citation índex" 0 → anche "citation index" 1009)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>nostro codice</strong>: l'API distingue gli accenti, aggiungiamo la variante senza (<code>_skgifSpellings()</code>, generica)</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">caratteri speciali (<code>, ' " &amp; # %</code>…, es. "alzheimer's disease")</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>nostro codice</strong>: senza pulizia l'API dà errore o tronca la query (<code>_skgifSafeTerm()</code>, generica)</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">paginazione</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>misto</strong>: l'API restituisce le pagine (<code>page</code>, <code>page_size</code>); barra, pulsanti, salto a pagina e cache sono nostri (sezione 1, generica)</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">card con stesso aspetto e link di Pietro</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>nostro codice</strong>: <code>_renderDocumentCard()</code> (specifica) + pezzi generici della sezione 2</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">ricerca per DOI / PMID / OpenAlex</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>misto</strong>: l'API ha il filtro sugli identificativi; riconoscere il tipo di ID e aprire la scheda è <code>skgifIdToOmid()</code> in <code>home.js</code></td>
+          </tr>
+        </table>
+      </li>
+
+      <li>
+        <p style="margin-top:10px;"><span style="color:#b91c1c; font-weight:600;">limiti:</span></p>
+        <ul>
+          <li><strong>1:</strong> accenti in una sola direzione: dal testo accentato si cerca anche quello senza, non il contrario</li>
+          <li><strong>2:</strong> niente ricerca per frase esatta: virgolette e altri caratteri che rompono la richiesta vengono tolti</li>
+          <li><strong>3:</strong> date: l'API dà un timestamp completo, si mostrano i primi 10 caratteri; se si conosce solo l'anno l'API lo completa come 01-01 (mostrato così com'è)</li>
+          <li><strong>4:</strong> nessun ordinamento per rilevanza: ordine dell'API; con gli accenti i risultati senza accento arrivano dopo tutti gli altri</li>
+          <li><strong>5:</strong> parole molto generiche: "the" (36 milioni di risultati) risponde, ma dopo diversi minuti</li>
+          <li><strong>6:</strong> identificativo con più record: si apre il primo (come il vecchio <code>LIMIT 1</code>)</li>
+          <li><strong>7:</strong> la scheda documento (<code>new_br_any_browser</code>) usa ancora le vecchie API: da migrare</li>
+        </ul>
+      </li>
+    </ul>
+
+ORCID e ISSN scritti nella home non passano da skgifIdToOmid(). Vanno alla ricerca autori (identifiers.id:<orcid>) e alla ricerca riviste (identifiers.scheme:issn,identifiers.value:<issn>). Per questo non li ho messi nella tabella dei documenti, ma possiamo citarli nelle rispettive sezioni.
+
+     <!-- ===================== CITAZIONI / RIFERIMENTI ===================== -->
+    <h3>Citazioni e riferimenti</h3>
+    <ul>
+      <li>
+        <strong>Prima e dopo</strong>
+        <ul>
+          <li><strong>Prima (Pietro):</strong> query SPARQL sull'<strong>Index</strong> (<code>cito:hasCitingEntity</code> / <code>cito:hasCitedEntity</code>) che restituiva solo gli OMID → <code>#postprocess post_search_ids2</code> → <code>load_metadata_async()</code> che chiamava la REST API di Meta a gruppi di 20 OMID per avere i dati delle card.</li>
+          <li><strong>Ora:</strong> una sola richiesta SKG-IF su <code>/products</code> con due filtri aggiunti da OpenCitations:
+            <ul>
+              <li><code>cf.cites:&lt;omid&gt;</code> → documenti che <strong>citano</strong> il documento = <strong>citazioni</strong></li>
+              <li><code>cf.cited_by:&lt;omid&gt;</code> → documenti <strong>citati dal</strong> documento = <strong>riferimenti</strong></li>
+            </ul>
+          </li>
+          <li>In SKG-IF non esiste un'entità "citazione", ma questi filtri restituiscono direttamente la lista dei documenti collegati con tutti i dati delle card.</li>
+        </ul>
+      </li>
+
+      <li>
+        <strong>Come ci si arriva</strong>
+        <ul>
+          <li><strong>dalla home:</strong> categoria "citations"/"references" + identificativo (DOI, PMID, OpenAlex o <code>br/...</code>) → <code>skgifIdToOmid()</code> → <code>doc_cit/br/&lt;id&gt;</code> o <code>doc_ref/br/&lt;id&gt;</code>. Con testo libero compare un avviso: serve un identificativo del documento.</li>
+          <li><strong>dalle card dei documenti:</strong> pulsanti <strong>Go to Citations</strong> / <strong>Go to References</strong>, presenti anche nelle liste stesse (si naviga da una citazione all'altra).</li>
+        </ul>
+      </li>
+
+      <li>
+        <strong>Semplificazione dei file <code>.hf</code></strong> (<code>doc_citations.hf</code>, <code>doc_references.hf</code>): eliminati la query SPARQL sull'Index (con <code>#postprocess</code>) e il blocco <code>render_trigger</code> con <code>#callfun load_metadata_async(...)</code>.
+
+        <div style="background:#1e1e1e; color:#d4d4d4; border-radius:8px; padding:14px 18px; margin:12px 0; overflow-x:auto; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; line-height:1.5;">
+<pre style="margin:0;"><code>#id main
+#url value=doc_cit/br/{id}
+
+#id citations_list
+#callfun api_doc_citations_skgif()
+
+---------------------------------
+
+#id main
+#url value=doc_ref/br/{id}
+
+#id references_list
+#callfun api_doc_references_skgif()</code></pre>
+        </div>
+      </li>
+
+      <li>
+        <strong>Modifiche ai file <code>.html</code></strong> (<code>doc_citations.html</code>, <code>doc_references.html</code>)
+        <ul>
+          <li>conteggio: <code>[[Lucinda:pipe_count(citations_list.ids)]]</code> → <code>&lt;span id="search-total-count"&gt;</code>, riempito dal paginator</li>
+          <li>contenitore: <code>async-results-container</code> → <code>search-results-container</code> (quello usato dal paginator comune), e <code>row justify-content-center</code> → <code>row</code> per avere gli stessi margini delle altre ricerche</li>
+          <li>tolto il <code>fw-bold</code> in più (<code>class="fw-bold"fw-bold</code>)</li>
+          <li>il titolo resta "Citations/References for: br/…" con <code>remove_percent(main.id)</code></li>
+        </ul>
+
+        <div style="background:#1e1e1e; color:#d4d4d4; border-radius:8px; padding:14px 18px; margin:12px 0; overflow-x:auto; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; line-height:1.5;">
+<pre style="margin:0;"><code>&lt;h3&gt;<span style="background-color:#ffcdf3; color:#1e1e1e;">&lt;span id="search-total-count"&gt;&lt;/span&gt;</span> Citations for: &lt;span <span style="background-color:#ffcdf3; color:#1e1e1e;">class="fw-bold"</span>&gt;br/[[Lucinda:remove_percent(main.id)]]&lt;/span&gt;&lt;/h3&gt;
+...
+&lt;div class="<span style="background-color:#ffcdf3; color:#1e1e1e;">row</span>" id="<span style="background-color:#ffcdf3; color:#1e1e1e;">search-results-container</span>"&gt;&lt;/div&gt;</code></pre>
+        </div>
+      </li>
+
+      <li>
+        <strong>Funzioni in <code>localbrowser.js</code></strong>
+        <p><span style="color:#1d4ed8; font-weight:600;">specifiche (sezione 5):</span></p>
+        <ul>
+          <li><code>api_doc_citations_skgif()</code> / <code>api_doc_references_skgif()</code>: due funzioni di una riga, chiamano la stessa funzione cambiando solo il filtro e il messaggio se non ci sono risultati</li>
+          <li><code>_skgifCitationList()</code>: legge l'id dall'URL, costruisce l'OMID completo <code>https://w3id.org/oc/meta/br/&lt;id&gt;</code> e avvia il paginator con una sola richiesta</li>
+        </ul>
+
+        <div style="background:#1e1e1e; color:#d4d4d4; border-radius:8px; padding:14px 18px; margin:12px 0; overflow-x:auto; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; line-height:1.5;">
+<pre style="margin:0;"><code>function api_doc_citations_skgif(...args) {
+  _skgifCitationList(args[1], 'cf.cites', 'No citations found.');
+}
+
+function api_doc_references_skgif(...args) {
+  _skgifCitationList(args[1], 'cf.cited_by', 'No references found.');
+}
+
+function _skgifCitationList(lucinda_main_data, filter, emptyMessage) {
+  const id = _skgifUrlParam(lucinda_main_data, 'id').trim();
+  if (!id) {
+    _skgifShowMessage(emptyMessage);
+    return;
+  }
+
+  const omidUrl = `https://w3id.org/oc/meta/br/${id}`;
+  createSkgifPaginatedSearch({
+    sources: [`${SKGIF_API}/products?filter=${filter}:${encodeURIComponent(omidUrl)}`],
+    renderItem: _renderDocumentCard,
+    emptyMessage
+  }).search();
+}</code></pre>
+        </div>
+
+        <p><span style="color:#1d4ed8; font-weight:600;">riusate:</span></p>
+        <ul>
+          <li><code>_renderDocumentCard()</code> (sezione 4, ricerca documenti): card identiche a quelle della ricerca documenti</li>
+          <li><strong>sezione 1:</strong> <code>createSkgifPaginatedSearch()</code> (paginazione)</li>
+          <li><strong>sezione 2:</strong> <code>_skgifUrlParam()</code>, <code>_skgifShowMessage()</code></li>
+        </ul>
+      </li>
+
+       <li>
+        <strong>Funzionalità supportate: API o nostro codice?</strong>
+        <table style="border-collapse:collapse; margin:10px 0; font-size:0.9rem;">
+          <tr style="background:#f3f4f6;">
+            <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">Funzionalità</th>
+            <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">Chi la fornisce</th>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">lista dei documenti citanti/citati con i dati completi in una risposta</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>API</strong> (filtri <code>cf.cites</code> / <code>cf.cited_by</code>)</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">numero totale di citazioni / riferimenti (<code>total_items</code>)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>API</strong>; il paginator lo scrive nel titolo</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">paginazione (barra, pulsanti, salto a pagina, cache)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>misto</strong>: le pagine le dà l'API, la barra è nostra (sezione 1, generica)</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">card uguali alla ricerca documenti, con navigazione tra citazioni</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>nostro codice</strong> (<code>_renderDocumentCard()</code>, riusata)</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">apertura da DOI / PMID / OpenAlex</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>misto</strong>: filtro sugli identificativi dell'API + <code>skgifIdToOmid()</code> in <code>home.js</code></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">avviso se si scrive testo libero invece di un ID</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>nostro codice</strong> (<code>home.js</code>)</td>
+          </tr>
+        </table>
+      </li>
+      <li>
+        <p style="margin-top:10px;"><span style="color:#b91c1c; font-weight:600;">limiti:</span></p>
+        <ul>
+          <li><strong>1:</strong> serve l'OMID completo: il filtro funziona solo con <code>https://w3id.org/oc/meta/br/...</code>; con <code>br/...</code> restituisce 0 (per questo il codice costruisce l'URL completo)</li>
+          <li><strong>2:</strong> il conteggio può differire leggermente dall'Index. Es. DOI <code>10.1007/s11192-019-03217-6</code>: riferimenti 20 = 20, citazioni <strong>82</strong> su SKG-IF contro <strong>81</strong> sull'API Index (probabilmente le due fonti non sono aggiornate nello stesso momento)</li>
+          <li><strong>3:</strong> niente dati sulla citazione in sé: SKG-IF restituisce i documenti, non le citazioni (mancano OCI, data della citazione, timespan, autocitazioni…) → caso aperto <code>new_ci_browser</code></li>
+          <li><strong>4:</strong> ordine dei risultati: quello dell'API, nessun ordinamento per data o rilevanza</li>
+          <li><strong>5:</strong> identificativo con più record: si usa il primo, come nella ricerca documenti</li>
+        </ul>
+      </li>
+    </ul>
+
+    <!-- ===================== RICERCA RIVISTE ===================== -->
+    <h3>Ricerca riviste</h3>
+    <ul>
+      <li></li>
+    </ul>
+
+    <!-- ===================== NOTES ===================== -->
+    <h3>Notes</h3>
+    <ul>
+      </li>
+    </ul>
+
+    <!-- ===================== RICERCA DOCUMENTI ===================== -->
+    <h3>Ricerca documenti</h3>
+    <ul>
+      <li></li>
+    </ul>
+
+    <!-- ===================== CITAZIONI / RIFERIMENTI ===================== -->
+    <h3>Citazioni e riferimenti</h3>
+    <ul>
+      <li></li>
+    </ul>
+
+    <!-- ===================== RICERCA RIVISTE ===================== -->
+     <!-- ===================== RICERCA RIVISTE ===================== -->
+    <h3>Ricerca riviste</h3>
+    <ul>
+      <li>
+        <strong>Prima e dopo</strong>
+        <ul>
+          <li><strong>Prima (Pietro):</strong> query SPARQL su Meta sul nome di <code>fabio:Journal</code> / <code>fabio:Series</code> (<code>bif:contains</code>, con <code>#preprocess remove_per</code> e <code>#postprocess post_search_ids</code>) → <code>api_search_venue()</code> che chiamava la REST API di Meta a gruppi di 20 OMID.</li>
+          <li><strong>Ora:</strong> una richiesta SKG-IF su <code>/venues</code> + una richiesta per ogni rivista per recuperare publisher ed editor.</li>
+        </ul>
+      </li>
+
+      <li>
+        <strong>Semplificazione del file <code>.hf</code></strong> (<code>venue_free_text.hf</code>): eliminato il blocco SPARQL <code>search_ids</code>.
+
+        <div style="background:#1e1e1e; color:#d4d4d4; border-radius:8px; padding:14px 18px; margin:12px 0; overflow-x:auto; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; line-height:1.5;">
+<pre style="margin:0;"><code>#id main
+#url value=venue/{search_query}
+
+#id api_search
+#callfun api_search_venue_skgif()</code></pre>
+        </div>
+      </li>
+
+      <li>
+        <strong>Modifiche al file <code>.html</code></strong> (<code>venue_free_text.html</code>)
+        <ul>
+          <li>conteggio: <code>[[Lucinda:pipe_count(search_ids.ids)]]</code> → <code>&lt;span id="search-total-count"&gt;</code></li>
+          <li>titolo: <code>remove_percent(main.search_query)</code> → <code>&lt;span id="search-query-label"&gt;</code> scritto da JS, perché la query può essere <code>issn=...</code> e va mostrata come "ISSN: ..."</li>
+          <li>contenitore <code>row justify-content-center</code> → <code>row</code>; corretto il refuso <code>calss</code> → <code>class</code></li>
+        </ul>
+
+        <div style="background:#1e1e1e; color:#d4d4d4; border-radius:8px; padding:14px 18px; margin:12px 0; overflow-x:auto; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; line-height:1.5;">
+<pre style="margin:0;"><code>&lt;h3 class="my-0"&gt;<span style="background-color:#ffcdf3; color:#1e1e1e;">&lt;span id="search-total-count"&gt;&lt;/span&gt;</span> Results for: &lt;span class="fw-bold" <span style="background-color:#ffcdf3; color:#1e1e1e;">id="search-query-label"</span>&gt;&lt;/span&gt;&lt;/h3&gt;
+&lt;p <span style="background-color:#ffcdf3; color:#1e1e1e;">class</span>="mb-0"&gt;Venue Resource Records&lt;/p&gt;
+...
+&lt;div class="<span style="background-color:#ffcdf3; color:#1e1e1e;">row</span>" id="search-results-container"&gt;&lt;/div&gt;</code></pre>
+        </div>
+      </li>
+
+      <li>
+        <strong>Funzioni in <code>localbrowser.js</code></strong>
+        <p><span style="color:#1d4ed8; font-weight:600;">specifiche (sezione 6):</span></p>
+        <ul>
+          <li><code>api_search_venue_skgif()</code>: capisce se la query è un ISSN o un nome, scrive il titolo, costruisce le richieste e avvia il paginator</li>
+          <li><code>_renderVenueCard()</code>: card con nome (→ scheda rivista), identificativi, <strong>Type</strong> e un box vuoto per publisher/editor</li>
+          <li><code>_loadVenueAgents()</code>: recupera publisher ed editor e riempie il box</li>
+        </ul>
+
+        <div style="background:#1e1e1e; color:#d4d4d4; border-radius:8px; padding:14px 18px; margin:12px 0; overflow-x:auto; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; line-height:1.5;">
+<pre style="margin:0;"><code>function api_search_venue_skgif(...args) {
+  const query = _skgifUrlParam(args[1], 'search_query');
+  const issn = query.startsWith('issn=') ? new URLSearchParams(query).get('issn').trim() : "";
+  const name = issn ? "" : _skgifSafeTerm(query);
+
+  const label = document.getElementById('search-query-label');
+  if (label) label.textContent = issn ? `ISSN: ${issn}` : name;
+  ...
+  const base = `${SKGIF_API}/venues?filter=`;
+  createSkgifPaginatedSearch({
+    sources: issn
+      ? [`${base}identifiers.scheme:issn,identifiers.value:${encodeURIComponent(issn)}`]
+      : _skgifSpellings(name).map(q =&gt; `${base}cf.search.name:${encodeURIComponent(q)},<span style="background-color:#ffcdf3; color:#1e1e1e;">type:journal</span>`),
+    renderItem: _renderVenueCard
+  }).search();
+}</code></pre>
+        </div>
+
+        <p><span style="color:#1d4ed8; font-weight:600;">riusate:</span></p>
+        <ul>
+          <li><strong>sezione 1:</strong> <code>createSkgifPaginatedSearch()</code>, <code>skgifFetch()</code> (richieste con cache)</li>
+          <li><strong>sezione 2:</strong> <code>_skgifUrlParam()</code>, <code>_skgifSafeTerm()</code>, <code>_skgifSpellings()</code>, <code>_skgifIdList()</code>, <code>_skgifAgents()</code> (la stessa degli autori nelle card documenti, qui con ruolo <code>publisher</code> / <code>editor</code>)</li>
+        </ul>
+      </li>
+
+      <li>
+        <strong>Gestione degli identificativi (ISSN)</strong>
+        <ul>
+          <li><code>home.js</code>: un ISSN scritto in qualsiasi categoria apre <code>venue/issn=&lt;ISSN&gt;</code> (X finale resa maiuscola, come nei dati)</li>
+          <li>filtro: <code>/venues?filter=identifiers.scheme:issn,identifiers.value:&lt;issn&gt;</code> (senza filtro sul tipo)</li>
+          <li>lo stesso ISSN appartiene a molti record: Scientometrics (<code>0138-9130</code>) → <strong>57 record</strong>. Prima <code>home.js</code> apriva solo il primo; ora si mostrano le card di tutti (come per l'ORCID degli autori)</li>
+          <li>nella card gli identificativi sono ordinati e cliccabili (ISSN → portale ISSN, OMID → w3id)</li>
+        </ul>
+      </li>
+
+      <li>
+        <strong>Recupero di publisher ed editor</strong>
+        <ul>
+          <li><span style="color:#b91c1c; font-weight:600;">problema:</span> su OC <code>/venues</code> restituisce solo <strong>nome, tipo e identificativi</strong> (lo standard SKG-IF prevede anche i contributi, ma OC non li compila)</li>
+          <li><span style="color:#15803d; font-weight:600;">soluzione:</span> l'OMID della rivista è anche un prodotto: <code>/products/&lt;OMID della rivista&gt;</code> restituisce la rivista <strong>con le <code>contributions</code></strong> (ruolo <code>publisher</code> e, se presente, <code>editor</code>). Es. <code>br/0603903699</code> → publisher Elsevier BV + editor.</li>
+          <li><strong>funzionamento:</strong> la card compare subito con un box vuoto; <code>_loadVenueAgents()</code> fa la richiesta in parallelo e riempie il box quando arriva la risposta. La richiesta passa dalla cache (tornando su una pagina non si ripete); se fallisce il box resta vuoto, senza errori.</li>
+          <li><strong>link:</strong> sia il <strong>publisher</strong> sia l'<strong>editor</strong> puntano alla pagina w3id dell'agente (<code>https://w3id.org/oc/meta/ra/...</code>). Pietro collegava <code>ar/...</code>, cioè il ruolo e non l'agente.</li>
+        </ul>
+
+        <div style="background:#1e1e1e; color:#d4d4d4; border-radius:8px; padding:14px 18px; margin:12px 0; overflow-x:auto; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; line-height:1.5;">
+<pre style="margin:0;"><code>function _loadVenueAgents(omid) {
+  skgifFetch(`${SKGIF_API}/<span style="background-color:#ffcdf3; color:#1e1e1e;">products/https://w3id.org/oc/meta/${omid}</span>`).then(data =&gt; {
+    const contributions = (data?.['@graph'] || [])[0]?.contributions;
+    const row = (role, label) =&gt; {
+      const agents = _skgifAgents(contributions, role, agentOmid =&gt; `<span style="background-color:#ffcdf3; color:#1e1e1e;">https://w3id.org/oc/meta/${agentOmid}</span>`);
+      return agents
+        ? `&lt;div class="mb-2"&gt;&lt;span class="metadata-label fw-bold"&gt;${label}:&lt;/span&gt;&lt;br&gt;&lt;span&gt;${agents}&lt;/span&gt;&lt;/div&gt;`
+        : '';
+    };
+    const html = row('publisher', 'Publisher') + row('editor', 'Editor');
+    document.querySelectorAll(`.venue-agents[data-venue-omid="${omid}"]`)
+      .forEach(box =&gt; { box.innerHTML = html; });
+  });
+}</code></pre>
+        </div>
+      </li>
+
+      <li>
+        <strong>Il filtro <code>type</code> e la possibilità di toglierlo</strong>
+        <ul>
+          <li>la ricerca per nome usa <code>type:journal</code> perché Pietro mostrava solo riviste e serie (<code>fabio:Journal</code>, <code>fabio:Series</code>)</li>
+          <li>senza filtro <code>/venues</code> restituisce tipi <code>journal</code>, <code>book</code>, <code>conference</code></li>
+        </ul>
+        <table style="border-collapse:collapse; margin:10px 0; font-size:0.9rem;">
+          <tr style="background:#f3f4f6;">
+            <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">Ricerca</th>
+            <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">Senza <code>type</code></th>
+            <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">Con <code>type:journal</code></th>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">"scientometrics"</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">311 (journal, book, conference)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">175</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">"lecture notes"</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">28.723 (quasi tutti book)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">857</td>
+          </tr>
+        </table>
+        <ul>
+          <li><strong>toglierlo è semplice:</strong> basta eliminare <code>,type:journal</code>; la card mostra già il campo <strong>Type</strong></li>
+          <li><span style="color:#15803d; font-weight:600;">pro:</span> si trovano anche serie di libri e atti di convegni</li>
+          <li><span style="color:#b91c1c; font-weight:600;">contro:</span> molti più risultati e meno pertinenti; va verificato che la scheda rivista funzioni anche per libri e convegni</li>
+          <li><strong>alternativa:</strong> menu a tendina per scegliere il tipo (journal / book / conference / tutti)</li>
+        </ul>
+      </li>
+
+      <li>
+        <p><span style="color:#b91c1c; font-weight:600;">problemi incontrati:</span></p>
+        <ul>
+          <li><strong>1:</strong> la ricerca di Pietro non funzionava più: l'endpoint SPARQL non accetta più <code>bif:contains</code> ("Prefix bif was not registered")</li>
+          <li><strong>2:</strong> <code>/venues</code> senza publisher ed editor → risolto con <code>/products/&lt;OMID&gt;</code></li>
+          <li><strong>3:</strong> ISSN con molti record → prima si apriva solo il primo, ora si mostrano tutti</li>
+          <li><strong>4:</strong> il campo data delle card di Pietro è sempre vuoto nei record dei journal su Meta → non riportato</li>
+        </ul>
+      </li>
+
+      <li>
+        <strong>Funzionalità supportate: API o nostro codice?</strong>
+        <table style="border-collapse:collapse; margin:10px 0; font-size:0.9rem;">
+          <tr style="background:#f3f4f6;">
+            <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">Funzionalità</th>
+            <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">Chi la fornisce</th>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">ricerca per nome, per inizio di parola, ordine delle parole indifferente</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>API</strong></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">ricerca per ISSN con tutti i record</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>misto</strong>: filtro dell'API; riconoscimento dell'ISSN e passaggio alle card nostro (<code>home.js</code>)</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">totale reale</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>API</strong></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">filtro per tipo</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>API</strong> (<code>type:</code>); la scelta di usare solo journal è nostra</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">publisher ed editor</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>nostro codice</strong>: richiesta extra a <code>/products/&lt;OMID&gt;</code> (<code>_loadVenueAgents()</code>)</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">accenti e caratteri speciali</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>nostro codice</strong> (<code>_skgifSpellings()</code>, <code>_skgifSafeTerm()</code>, generiche)</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">paginazione e card</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>misto / nostro codice</strong>, come per documenti e autori</td>
+          </tr>
+        </table>
+      </li>
+
+      <li>
+        <p><span style="color:#15803d; font-weight:600;">potenzialità:</span></p>
+        <ul>
+          <li>SKG-IF ha <code>/organisations</code>: il link del <strong>publisher</strong> potrebbe aprire una pagina dedicata invece di w3id</li>
+          <li>l'<strong>editor</strong> è di solito una persona: il suo link potrebbe aprire il profilo autore di Lucinda (<code>new_ra_browser</code>) una volta migrato</li>
+          <li>filtro per tipo con menu a tendina: estende la ricerca a libri e convegni senza cambiare il resto del codice</li>
+        </ul>
+      </li>
+
+      <li>
+        <p style="margin-top:10px;"><span style="color:#b91c1c; font-weight:600;">limiti:</span></p>
+        <ul>
+          <li><strong>1:</strong> una richiesta in più per ogni rivista (10 per pagina) per avere publisher ed editor</li>
+          <li><strong>2:</strong> la ricerca per nome su <code>/venues</code> è lenta (fino a circa un minuto o timeout con nomi lunghi): problema dell'API, non del codice</li>
+          <li><strong>3:</strong> record duplicati: la stessa rivista compare molte volte (57 record per un solo ISSN)</li>
+          <li><strong>4:</strong> nessun collegamento rivista → articoli: <code>/products</code> non ha un filtro per venue. Blocca lista articoli e conteggio nel <strong>profilo rivista</strong> (<code>new_venue_browser</code>) → da discutere: chiedere un filtro a OC o usare Meta</li>
+          <li><strong>5:</strong> accenti in una sola direzione e niente frase esatta, come nella ricerca documenti</li>
+        </ul>
+      </li>
+    </ul>
+
+    <!-- ===================== NOTES ===================== -->
+    <h3>Notes</h3>
+    <ul>
+      <li>
+        <span style="color:#15803d; font-weight:600;">Organizzazione di <code>localbrowser.js</code>:</span>
+        sezione 1 paginazione comune; sezione 2 utilità comuni (lettura parametri, pulizia della query, accenti, identificativi, pezzi di card); una sezione per ogni ricerca con la sua logica specifica.
+      </li>
+      <li>
+        <span style="color:#15803d; font-weight:600;">Preprocessing:</span>
+        non si usa più il blocco <code>#preprocess</code> di Lucinda. Quello comune è nella sezione 2 (<code>_skgifUrlParam()</code>, <code>_skgifSafeTerm()</code>, <code>_skgifSpellings()</code>); quello specifico degli autori è <code>_authorSearchFields()</code>.
+      </li>
+    </ul>
+     <!-- ===================== NOTES ===================== -->
+    <h3>Notes</h3>
+    <ul>
+      <li>
+        <span style="color:#15803d; font-weight:600;">Organizzazione di <code>localbrowser.js</code>:</span>
+        sezione 1 paginazione comune; sezione 2 utilità comuni (lettura parametri, pulizia della query, accenti, identificativi, pezzi di card); una sezione per ogni ricerca con la sua logica specifica.
+      </li>
+
+      <li>
+        <span style="color:#15803d; font-weight:600;">Preprocessing:</span>
+        non si usa più il blocco <code>#preprocess</code> di Lucinda. Quello comune è nella sezione 2 (<code>_skgifUrlParam()</code>, <code>_skgifSafeTerm()</code>, <code>_skgifSpellings()</code>); quello specifico è nella funzione di ogni ricerca (es. <code>_authorSearchFields()</code> per gli autori, riconoscimento <code>issn=</code> per le riviste).
+      </li>
+
+      <li>
+        <span style="color:#1d4ed8; font-weight:600;">Ricerca per identificativo (recap):</span>
+        <code>home.js</code> riconosce il tipo di ID con una regex. ORCID e ISSN vengono controllati <strong>prima della categoria</strong> (in qualsiasi categoria aprono rispettivamente la ricerca autori e la ricerca riviste); gli altri ID passano da <code>skgifIdToOmid()</code> (sostituisce <code>idToOmid()</code> che usava SPARQL) solo quando serve convertirli in OMID.
+        <table style="border-collapse:collapse; margin:10px 0; font-size:0.9rem;">
+          <tr style="background:#f3f4f6;">
+            <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">ID</th>
+            <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">Passaggio ID → OMID</th>
+            <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">Filtro SKG-IF</th>
+            <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">Dove porta</th>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">ORCID (<code>0000-...</code>, <code>orcid:</code>, <code>https://orcid.org/</code>; anche se scritto nei campi nome)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">no</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><code>/persons?filter=identifiers.id:&lt;orcid&gt;</code></td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">card di tutti i record con quell'ORCID (es. Peroni: 10)</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">ISSN (<code>0000-0000</code>, <code>issn:</code>)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">no</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><code>/venues?filter=identifiers.scheme:issn,identifiers.value:&lt;issn&gt;</code></td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">card di tutti i record con quell'ISSN (es. Scientometrics: 57)</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">DOI (<code>10.xxx/...</code>, <code>doi:</code>)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">sì, <code>skgifIdToOmid()</code></td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><code>/products?filter=identifiers.scheme:doi,identifiers.id:&lt;doi&gt;&amp;page_size=1</code></td>
+            <td rowspan="3" style="border:1px solid #e5e7eb; padding:6px 10px;">primo record trovato (come il vecchio <code>LIMIT 1</code>) → scheda documento <code>br/...</code>; con categoria citations/references → <code>doc_cit/br/...</code> / <code>doc_ref/br/...</code></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">PMID (<code>pmid:</code>)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">sì, <code>skgifIdToOmid()</code></td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><code>/products?filter=identifiers.scheme:pmid,identifiers.id:&lt;pmid&gt;&amp;page_size=1</code></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">OpenAlex (<code>openalex:W...</code>)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">sì, <code>skgifIdToOmid()</code></td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><code>/products?filter=identifiers.scheme:openalex,identifiers.id:&lt;id&gt;&amp;page_size=1</code></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">OMID (<code>br/</code>, <code>ra/</code>, <code>ve/</code>, <code>ci/</code> + cifre)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">no (è già un OMID)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">nessuna chiamata</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">scheda della risorsa (o <code>doc_cit</code>/<code>doc_ref</code> per i <code>br/</code>)</td>
+          </tr>
+        </table>
+        <p>Citazioni e riferimenti accettano solo un identificativo di documento: con testo libero compare un avviso.</p>
+      </li>
+
+      <li>
+        <span style="color:#1d4ed8; font-weight:600;">Numero di chiamate SKG-IF per risorsa:</span>
+        <p>Il paginator chiede sempre pagine da 10. All'apertura fa la pagina 1 di ogni fonte (che serve comunque e dà anche il totale) e poi <strong>precarica la pagina successiva</strong> in background. Le altre API (SPARQL, Meta REST, Index) non vengono più usate nelle parti migrate.</p>
+        <table style="border-collapse:collapse; margin:10px 0; font-size:0.9rem;">
+          <tr style="background:#f3f4f6;">
+            <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">Risorsa</th>
+            <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">Fonti (richieste di ricerca)</th>
+            <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">Chiamate aggiuntive</th>
+            <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">Prima (Pietro)</th>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">Autori</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">1 (ORCID o nome senza accenti); 2 con accenti; fino a 4 se nome e cognome sono entrambi accentati</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">nessuna</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">SPARQL + Meta REST</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">Documenti</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">1; 2 se la query ha accenti</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">nessuna</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">SPARQL (LIMIT 100) + Meta REST a gruppi di 20</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">Citazioni / riferimenti</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">1</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">nessuna</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">SPARQL sull'Index + Meta REST a gruppi di 20</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">Riviste</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">1 (ISSN o nome senza accenti); 2 con accenti</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;"><strong>+1 per ogni rivista</strong> (<code>/products/&lt;OMID&gt;</code> per publisher ed editor) → 10 per pagina</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">SPARQL (non più funzionante) + Meta REST a gruppi di 20</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">ID dalla home (DOI, PMID, OpenAlex)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">1 (<code>page_size=1</code>) per trovare l'OMID</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">nessuna (ORCID, ISSN e OMID: 0)</td>
+            <td style="border:1px solid #e5e7eb; padding:6px 10px;">SPARQL su Meta</td>
+          </tr>
+        </table>
+      </li>
+
+      <li>
+        <span style="color:#b91c1c; font-weight:600;">Gestione della lentezza dell'API:</span>
+        l'API è lenta sulle richieste che non ha mai servito (20–60 s, poi le tiene in cache); con nomi di rivista di più parole comuni (es. "journal of humanities") può andare in timeout (HTTP 408 dopo circa 3 minuti). Soluzioni adottate (tutte nella sezione 1, quindi valgono per ogni ricerca):
+        <ul>
+          <li><strong>banner di caricamento</strong> (<code>holdSkgifPage()</code> / <code>releaseSkgifPage()</code>): resta "Loading the resource…" finché la prima pagina non è pronta, così titolo, conteggio e risultati compaiono insieme invece di un template vuoto</li>
+          <li><strong>precaricamento della pagina successiva</strong>: mentre l'utente legge una pagina, la successiva si carica in background, così Next è di solito immediato</li>
+          <li><strong>cache delle risposte</strong> (<code>_skgifResponseCache</code>): tornare su una pagina già vista non rifà la richiesta (vale anche per publisher/editor delle riviste)</li>
+          <li><strong>richieste in corso condivise</strong> (<code>_skgifPendingRequests</code>): se si chiede una pagina che si sta già caricando (es. Next durante il precaricamento) si aspetta quella richiesta invece di mandarne una seconda</li>
+          <li><strong>messaggio di errore chiaro</strong> (<code>SKGIF_FAILED_MESSAGE</code>): se l'API non risponde o dà errore, compare "The search failed or took too long…" invece di un fuorviante "No results found"; la richiesta fallita non va in cache, quindi si può riprovare</li>
+          <li><strong>publisher/editor non bloccanti</strong>: le card delle riviste compaiono subito e il box si riempie quando arriva la risposta</li>
+        </ul>
+      </li>
+    </ul>
+
+    <h3>Q</h3>
+    <ul>
+      <li></li>
+    </ul>
+
+  </div>
+</details>
 
     </main>
   </div>
