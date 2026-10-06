@@ -224,7 +224,7 @@
     <h3>Ricerca autori</h3>
     <ul>
       <li>
-        <strong>Nuovo form di ricerca</strong> (<code>home.html</code>, <code>home.js</code>): selezionando "Author" la barra unica viene sostituita da tre campi: <strong>Given name</strong>, <strong>Family name</strong> e, in alternativa, <strong>ORCID</strong>.
+        <strong><mark style="background-color:yellow;">Nuovo form di ricerca</mark></strong> (<code>home.html</code>, <code>home.js</code>): selezionando "Author" la barra unica viene sostituita da tre campi: <strong>Given name</strong>, <strong>Family name</strong> e, in alternativa, <strong>ORCID</strong>.
         <ul>
           <li>Compilando nome/cognome il campo ORCID si disattiva, e viceversa: le due modalità di ricerca non si mescolano.</li>
           <img src="img/ricercautori1.png" alt="Nuovo form di ricerca autori" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
@@ -238,7 +238,7 @@
       </li>
 
       <li>
-        <strong>file <code>html</code>: titolo dei risultati</strong> (<code>aut_free_text.html</code>): il <code>search_query</code> ora è codificato (<code>given=...&amp;family=...</code>), quindi non può essere stampato direttamente con <code>remove_percent</code>. Il titolo viene scritto via JS in <code>#search-query-label</code> in forma leggibile.
+        <strong>file <code>html</code>: <mark style="background-color:yellow;">titolo dei risultati</mark></strong> (<code>aut_free_text.html</code>): il <code>search_query</code> ora è codificato (<code>given=...&amp;family=...</code>), quindi non può essere stampato direttamente con <code>remove_percent</code>. Il titolo viene scritto via JS in <code>#search-query-label</code> in forma leggibile.
 
         <div style="background:#1e1e1e; color:#d4d4d4; border-radius:8px; padding:14px 18px; margin:12px 0; overflow-x:auto; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; line-height:1.5;">
 <pre style="margin:0;"><code>&lt;h3 class="my-0"&gt;&lt;span id="search-total-count"&gt;&lt;/span&gt; Results for: &lt;span class="fw-bold" <span style="background-color:#ffcdf3; color:#1e1e1e;">id="search-query-label"</span>&gt;&lt;/span&gt;&lt;/h3&gt;</code></pre>
@@ -260,14 +260,14 @@
         <ul>
           <li><strong>Niente più split e rotazioni</strong></li>
           <li><strong>Niente più overlap</strong>. Il paginator usa solo <code>listedTotal</code> (somma dei <code>total_items</code>); <code>displayTotal</code> e l'overlap sono stati rimossi.</li>
-          <li><strong>Una chiamata per grafia</strong>: senza accenti (o con ORCID) c'è una sola fonte; con accenti si aggiunge la variante senza accenti (2 fonti, fino a 4 se nome e cognome sono entrambi accentati).</li>
+          <li><strong><mark style="background-color:yellow;">una chiamata per grafia</mark></strong>: senza accenti (o con ORCID) c'è una sola fonte; con accenti si aggiunge la variante senza accenti (2 fonti, fino a 4 se nome e cognome sono entrambi accentati).</li>
         </ul>
 
         <p><span style="color:#15803d; font-weight:600;">funzionalità supportate:</span></p>
         <ul>
           <li>ricerca per nome + cognome, solo nome, solo cognome</li>
           <li>iniziali(<code>cf.search.*</code> cerca l'inizio delle parole)</li>
-          <li>ricerca per ORCID (anche con prefisso <code>orcid:</code> o URL <code>https://orcid.org/...</code>) --> cards</li>
+          <li><mark style="background-color:yellow;">ricerca per ORCID</mark> (anche con prefisso <code>orcid:</code> o URL <code>https://orcid.org/...</code>) --> cards</li>
           <li>gestione dei caratteri speciali come l'apostrofo</li>
           <li>paginazione con barra, pulsanti e salto a pagina</li>
           <li>conteggio dei risultati non più limitato a 100 come nella query SPARQL</li>
@@ -290,7 +290,7 @@
       <li>
         <strong>Recap</strong>
         <ul>
-          <li>una sola richiesta SKG-IF <code>/products?filter=cf.search.title:&lt;testo&gt;</code>, che restituisce già tutti i dati della card e il totale reale.</li>
+          <li><mark style="background-color:yellow;">una sola richiesta SKG-IF <code>/products?filter=cf.search.title:&lt;testo&gt;</code>, che restituisce già tutti i dati della card e il totale reale</mark>.</li>
         </ul>
       </li>
 
@@ -315,7 +315,7 @@
       </li>
 
       <li>
-        <strong>Ricerca per identificativo</strong> (<code>home.js</code>): <code>skgifIdToOmid()</code>. Apre la scheda del documento.
+        <strong><mark style="background-color:yellow;">Ricerca per identificativo</mark></strong> (<code>home.js</code>): <code>skgifIdToOmid()</code>. Apre la scheda del documento.
         <table style="border-collapse:collapse; margin:10px 0; font-size:0.9rem;">
           <tr style="background:#f3f4f6;">
             <th style="border:1px solid #e5e7eb; padding:6px 10px; text-align:left;">Input</th>
@@ -353,7 +353,7 @@
         <p style="margin-top:10px;"><span style="color:#b91c1c; font-weight:600;">limiti:</span></p>
         <ul>
           <li><strong>1:</strong> accenti in una sola direzione</li>
-          <li><strong>2:</strong> date (quando di un documento si conosce solo l'anno l'API restituisce comunque una data completa in formato 01/01)</li>
+          <li><strong>2:</strong> <mark style="background-color:yellow;">date</mark> (quando di un documento si conosce solo l'anno l'API restituisce comunque una data completa in formato 01/01)</li>
           <li><strong>3:</strong> nessun ordinamento per rilevanza: ordine dell'API</li>
         </ul>
       </li>
@@ -365,7 +365,7 @@
       <li>
         <strong>Recap:</strong>
         <ul>
-          <li>una sola richiesta SKG-IF su <code>/products</code> con due filtri:
+          <li><mark style="background-color:yellow;">una sola richiesta SKG-IF su <code>/products</code> con due filtri</mark>:
             <ul>
               <li><code>cf.cites:&lt;omid&gt;</code> → documenti che <strong>citano</strong> il documento = <strong>citazioni</strong></li>
               <li><code>cf.cited_by:&lt;omid&gt;</code> → documenti <strong>citati dal</strong> documento = <strong>riferimenti</strong></li>
@@ -378,8 +378,8 @@
       <li>
         <strong>Come ci si arriva</strong>
         <ul>
-          <li><strong>dalla home:</strong> categoria "citations"/"references" + identificativo (DOI, PMID, OpenAlex o <code>br/...</code>) → <code>skgifIdToOmid()</code> → <code>doc_cit/br/&lt;id&gt;</code> o <code>doc_ref/br/&lt;id&gt;</code>. Con testo libero compare un avviso: serve un identificativo del documento.</li>
-          <li><strong>dalle cards dei documenti:</strong> pulsanti <strong>Go to Citations</strong> / <strong>Go to References</strong></li>
+          <li><strong><mark style="background-color:yellow;">dalla home</mark>:</strong> categoria "citations"/"references" + identificativo (DOI, PMID, OpenAlex o <code>br/...</code>) → <code>skgifIdToOmid()</code> → <code>doc_cit/br/&lt;id&gt;</code> o <code>doc_ref/br/&lt;id&gt;</code>. Con testo libero compare un avviso: serve un identificativo del documento.</li>
+          <li><strong><mark style="background-color:yellow;">dalle cards dei documenti</mark>:</strong> pulsanti <strong>Go to Citations</strong> / <strong>Go to References</strong></li>
            <img src="img/doccard.png" alt="Nuovo form di ricerca autori" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
         </ul>
       </li>
@@ -392,7 +392,7 @@
         <strong>Modifiche ai file <code>.html</code></strong> (<code>doc_citations.html</code>, <code>doc_references.html</code>)
         <ul>
           <li>contenitore: <code>async-results-container</code> → <code>search-results-container</code> (quello usato dal paginator comune)</li>
-          <li>il titolo resta " N Citations/References for: br/…"</li>
+          <li><mark style="background-color:yellow;">il titolo resta " N Citations/References for: br/…"</mark></li>
         </ul>
 
         
@@ -430,7 +430,7 @@
       <li>
         <strong>Gestione:</strong>
         <ul>
-          <li>Una richiesta SKG-IF su <code>/venues?filter=cf.search.name:testo</code> + una richiesta per ogni rivista su <code>/products</code> per recuperare publisher ed editor.</li>
+          <li><mark style="background-color:yellow;">Una richiesta SKG-IF su <code>/venues?filter=cf.search.name:testo</code> + una richiesta per ogni rivista su <code>/products</code> per recuperare publisher ed editor.</mark></li>
           <img src="img/venuecard.png" alt="Nuovo form di ricerca autori" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
         </ul>
       </li>
@@ -457,7 +457,7 @@
       </li>
 
       <li>
-        <strong>Ricerca per identificativi (ISSN)</strong>
+        <strong><mark style="background-color:yellow;">Ricerca per identificativi (ISSN)</mark></strong>
         <ul>
           <li>filtro: <code>/venues?filter=identifiers.scheme:issn,identifiers.value:&lt;issn&gt;</code> (senza filtro sul tipo)</li>
           <li>vengono mostrate le card dei venues</li>
@@ -465,16 +465,16 @@
       </li>
 
       <li>
-        <strong>Recupero di publisher ed editor</strong>
+        <strong><mark style="background-color:yellow;">Recupero di publisher ed editor</mark></strong>
         <ul>
           <li><span style="color:#b91c1c; font-weight:600;">problema:</span> su OC <code>/venues</code> restituisce solo <strong>nome, tipo e identificativi</strong></li>
-          <li><span style="color:#15803d; font-weight:600;">soluzione:</span> l'OMID della rivista è anche un prodotto: <code>/products/&lt;OMID della rivista&gt;</code> restituisce la rivista <strong>con le <code>contributions</code></strong> (ruolo <code>publisher</code> e, se presente, <code>editor</code>)</li>
+          <li><span style="color:#15803d; font-weight:600;">soluzione:</span> l'OMID della rivista è anche un prodotto: <mark style="background-color:yellow;"><code>/products/&lt;OMID della rivista&gt;</code></mark> restituisce la rivista <strong>con le <code>contributions</code></strong> (ruolo <code>publisher</code> e, se presente, <code>editor</code>)</li>
           <li><strong>funzionamento:</strong> la card compare subito con un box vuoto; <code>_loadVenueAgents()</code> fa la richiesta in parallelo e riempie il box quando arriva la risposta</li>
         </ul>
       </li>
 
       <li>
-        <strong>Il filtro <code>type</code></strong>
+        <strong><mark style="background-color:yellow;">Il filtro <code>type</code></mark></strong>
         <ul>
           <li>senza filtro <code>/venues</code> restituisce tipi <code>journal</code>, <code>book</code>, <code>conference</code></li>
         </ul>
@@ -494,8 +494,8 @@
       <li>
         <p><span style="color:#15803d; font-weight:600;">potenzialità:</span></p>
         <ul>
-          <li>l'<strong>editor</strong> è di solito una persona: il suo link potrebbe aprire il profilo autore di Lucinda e il publisher la scheda di prganization</li>
-          <li>filtro per tipo?</li>
+          <li><mark style="background-color:yellow;">l'<strong>editor</strong> è di solito una persona: il suo link potrebbe aprire il profilo autore di Lucinda e il publisher la scheda di prganization</mark></li>
+          <li><mark style="background-color:yellow;">filtro per tipo?</mark></li>
           <li>data della rivista?</li>
         </ul>
       </li>
@@ -504,7 +504,7 @@
         <p style="margin-top:10px;"><span style="color:#b91c1c; font-weight:600;">limiti:</span></p>
         <ul>
           <li><strong>1:</strong> una richiesta in più per ogni rivista (10 per pagina) per avere publisher ed editor</li>
-          <li><strong>2:</strong> nessun collegamento rivista → articoli: gestione <strong>profilo rivista</strong> ?</li>
+          <li><strong>2:</strong> <mark style="background-color:yellow;">nessun collegamento rivista → articoli: gestione <strong>profilo rivista</strong> ?</mark></li>
         </ul>
       </li>
     </ul>
@@ -515,7 +515,7 @@
       <li>
         <strong>Gestione:</strong>
         <ul>
-          <li>ricerca per nome (<code>/organisations?filter=cf.search.name:...</code>), <code>crossref:&lt;id&gt;</code> (<code>identifiers.id:&lt;id&gt;</code>), OMID <code>ra/...</code> (<code>/organisations/&lt;omid&gt;</code></li>
+          <li><mark style="background-color:yellow;">ricerca per nome (<code>/organisations?filter=cf.search.name:...</code>), <code>crossref:&lt;id&gt;</code> (<code>identifiers.id:&lt;id&gt;</code>), OMID <code>ra/...</code> (<code>/organisations/&lt;omid&gt;</code></mark></li>
           <img src="img/organization.png" alt="Nuovo form di ricerca autori" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
         </ul>
       </li>
@@ -524,14 +524,14 @@
       <li>
         <p><span style="color:#b91c1c; font-weight:600;">contro:</span></p>
         <ul>
-          <li><strong>duplicati</strong></li>
+          <li><mark style="background-color:yellow;"><strong>duplicati</strong></mark></li>
         </ul>
       </li>
 
       <li>
         <p><span style="color:#1d4ed8; font-weight:600;">possibile gestione:</span></p>
         <ul>
-          <li>ricavare additional info da : prodotti dell'organizzazione, con /products?filter=contributions.by.local_identifier:omid da aggungeere nella card: ruolo dell'organizzazione e pulsante "Go to Publications" (lista dei prodotti) = chiamata in più per ognui card</li>
+          <li><mark style="background-color:yellow;">ricavare additional info da : prodotti dell'organizzazione, con /products?filter=contributions.by.local_identifier:omid da aggungeere nella card: ruolo dell'organizzazione e pulsante "Go to Publications" (lista dei prodotti) = chiamata in più per ognui card</mark></li>
         </ul>
       </li>
     </ul>
@@ -675,7 +675,6 @@
 
   </div>
 </details>
-
       <!-- SETTIMANA 1 -->
 <details>
   <summary>
