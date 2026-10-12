@@ -187,6 +187,17 @@
       font-size: 0.85em;
     }
 
+    /* Tabelle (sezione 12/10) */
+    .tbl-wrap { overflow-x: auto; margin: 10px 0 14px; }
+    .tbl { border-collapse: collapse; font-size: 0.88rem; min-width: 100%; }
+    .tbl th, .tbl td { border: 1px solid #e5e7eb; padding: 6px 10px; text-align: left; vertical-align: top; }
+    .tbl th { background: #f3f4f6; font-weight: 600; }
+    .content h4 { font-size: 0.92rem; font-weight: 600; margin: 14px 0 6px; }
+    .ok { color: #15803d; font-weight: 600; }
+    .ko { color: #b91c1c; font-weight: 600; }
+    .foto { border: 2px dashed var(--border); border-radius: 8px; padding: 18px; margin: 8px 0 16px; text-align: center; color: var(--muted); font-size: 0.85rem; }
+    .foto img { max-width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; }
+
     footer {
       text-align: center;
       margin-top: 50px;
@@ -213,8 +224,252 @@
 
     <main class="entries">
 
-      <!-- SETTIMANA 2 -->
+      <!-- SETTIMANA 3 -->
 <details open>
+  <summary>
+    12/10/2026
+  </summary>
+  <div class="content">
+
+    <!-- ===================== NUOVA INTERFACCIA HOME ===================== -->
+    <h3>Interfaccia di ricerca (home)</h3>
+    
+    <img src="img/screenhome2.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
+    <img src="img/screenhome.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
+
+    <!-- ===================== RISULTATI DI RICERCA ===================== -->
+    <h3>Risultati di ricerca</h3>
+    <p>Ogni ricerca fa <strong>una chiamata per pagina</strong> (10 risultati); il totale arriva nella stessa risposta (<code>meta.part_of.total_items</code>). Solo le venue fanno chiamate in più.</p>
+
+    <h4><mark style="background-color:#b9f6ca;">Document</mark></h4>
+    <ul>
+      <li>testo: <code>/products?filter=cf.search.title:&lt;testo&gt;</code></li>
+      <li>ID: <code>/products?filter=identifiers.scheme:&lt;schema&gt;,identifiers.id:&lt;valore&gt;</code></li>
+      <li>OMID: <code>/products/&lt;OMID completo&gt;</code></li>
+    </ul>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Campo</th><th>Campo JSON-LD</th><th>Link</th></tr>
+      <tr><td>Titolo</td><td><code>titles</code></td><td>scheda documento</td></tr>
+      <tr><td>Authors</td><td><code>contributions</code> con ruolo <code>author</code> (gli altri ruoli, publisher compreso, sono scartati)</td><td>profilo autore</td></tr>
+      <tr><td>Identifiers</td><td><code>identifiers</code> + OMID</td><td>siti esterni (doi.org, PubMed…); OMID → record OC Meta</td></tr>
+      <tr><td>Publication Date</td><td><code>manifestations[].dates.publication</code> (AAAA-MM-GG, altrimenti "Unknown")</td><td>—</td></tr>
+      <tr><td>Source</td><td><code>manifestations[].biblio.in</code>: nome della venue + suoi ID (riga assente se manca)</td><td>scheda venue</td></tr>
+      <tr><td>Pulsanti</td><td>"Go to References" / "Go to Citations"</td><td>liste riferimenti / citazioni</td></tr>
+    </table></div>
+    <img src="img/screendocumenti2.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
+
+    <h4><mark style="background-color:#b9f6ca;">Author</mark></h4>
+    <ul>
+      <li>testo: <code>/persons?filter=cf.search.given_name:&lt;nome&gt;,cf.search.family_name:&lt;cognome&gt;</code></li>
+      <li>ID / OMID: come sopra, su <code>/persons</code></li>
+    </ul>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Campo</th><th>Campo JSON-LD</th><th>Link</th></tr>
+      <tr><td>Nome</td><td><code>name</code> (oppure <code>given_name</code> + <code>family_name</code>)</td><td>profilo autore</td></tr>
+      <tr><td>ORCID</td><td><code>identifiers</code> con schema orcid (se manca: "No ORCID found")</td><td>orcid.org</td></tr>
+      <tr><td>Other identifiers</td><td>gli altri <code>identifiers</code> + OMID</td><td>siti esterni; OMID → record OC Meta</td></tr>
+    </table></div>
+    <img src="img/screenautori.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
+    <p>In ogni pagina i nomi che corrispondono esattamente alla ricerca vengono messi per primi.</p>
+
+    <h4><mark style="background-color:#b9f6ca;">Venue</mark></h4>
+    <ul>
+      <li>testo: <code>/venues?filter=cf.search.name:&lt;testo&gt;</code></li>
+      <li>ID: <code>/venues?filter=identifiers.scheme:&lt;schema&gt;,identifiers.value:&lt;valore&gt;</code></li>
+      <li>OMID: <code>/venues/&lt;OMID completo&gt;</code></li>
+      <li><mark style="background-color:yellow;">per ogni card</mark>: <code>/products/&lt;OMID della venue&gt;</code> (publisher ed editor)</li>
+    </ul>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Campo</th><th>Campo JSON-LD</th><th>Chiamata</th></tr>
+      <tr><td>Nome (→ scheda venue)</td><td><code>name</code></td><td>1ª (<code>/venues</code>)</td></tr>
+      <tr><td>Identifiers</td><td><code>identifiers</code> + OMID (OMID → record OC Meta)</td><td>1ª</td></tr>
+      <tr><td>Type</td><td><code>type</code> (journal, book, conference…)</td><td>1ª</td></tr>
+      <tr><td>Publisher</td><td><code>contributions</code> con ruolo <code>publisher</code> (riga assente se manca)</td><td>2ª (<code>/products/&lt;omid&gt;</code>)</td></tr>
+      <tr><td>Editor</td><td><code>contributions</code> con ruolo <code>editor</code> (riga assente se manca)</td><td>2ª</td></tr>
+    </table></div>
+    <img src="img/screenvenues.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
+
+    <h4><mark style="background-color:#b9f6ca;">Organisation</mark></h4>
+    <ul>
+      <li>testo: <code>/organisations?filter=cf.search.name:&lt;testo&gt;</code></li>
+      <li>ID / OMID: come sopra, su <code>/organisations</code></li>
+    </ul>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Campo</th><th>Campo JSON-LD</th><th>Link</th></tr>
+      <tr><td>Nome</td><td><code>name</code></td><td>scheda organizzazione</td></tr>
+      <tr><td>Identifiers</td><td><code>identifiers</code> (Crossref ID, se c'è) + OMID</td><td>OMID → record OC Meta</td></tr>
+    </table></div>
+    <img src="img/screenorganization.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
+
+    <h4><mark style="background-color:#b9f6ca;">Chiamate per pagina</mark></h4>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Risorsa</th><th>Chiamate</th></tr>
+      <tr><td>Document</td><td>1</td></tr>
+      <tr><td>Author</td><td>1</td></tr>
+      <tr><td>Venue</td><td><mark style="background-color:yellow;">1 su <code>/venues</code> + 1 su <code>/products/&lt;omid&gt;</code> per ogni card (fino a 10)</mark></td></tr>
+      <tr><td>Organisation</td><td>1</td></tr>
+    </table></div>
+    <img src="img/buttons.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
+    <ul>
+      <li>Cambiando pagina parte una nuova chiamata con <code>&amp;page=N</code> (per le venue di nuovo 1 + 10).</li>
+      <li>Le risposte restano in cache: tornando a una pagina già vista non parte nessuna chiamata.</li>
+    </ul>
+
+    <!-- ===================== RICERCA PER ID ===================== -->
+    <h3>Ricerca per identificativo</h3>
+    <ul>
+      <li>Nella home, per ogni risorsa (tranne Citation), c'è il pannello <strong>[schema ▾] [valore]</strong>, in alternativa al testo libero.</li>
+      <li>Il menu offre <strong>tutti gli schemi SKG-IF</strong> adatti alla risorsa (lista da <a href="https://skg-if.github.io/interoperability-framework/" target="_blank">skg-if.github.io/interoperability-framework</a>)</li>
+    </ul>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Risorsa</th><th>Schemi</th></tr>
+      <tr><td>Document</td><td><strong>DOI</strong>, arXiv, Bibcode, Handle, ISBN, IVOID, OMID, OpenAlex, PMCID, PMID, SPASE, URL, URN, w3id</td></tr>
+      <tr><td>Author</td><td><strong>ORCID</strong>, OMID, OpenAlex, URL, VIAF, w3id</td></tr>
+      <tr><td>Venue</td><td><strong>ISSN</strong>, DOI, eISSN, ISBN, ISSN-L, OMID, OpenAlex, URL, w3id</td></tr>
+      <tr><td>Organisation</td><td><strong>Crossref ID</strong>, OMID, OpenAlex, ROR, URL, VIAF, w3id</td></tr>
+    </table></div>
+
+    <details style="margin:12px 0;">
+      <summary>Esempi da cercare</summary>
+      <div style="padding:12px;">
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Risorsa</th><th>Schema</th><th>Valore</th><th>Risultato</th></tr>
+      <tr><td>Document</td><td>DOI</td><td><code>10.1007/s11192-019-03217-6</code></td><td><em>Software Review: COCI…</em></td></tr>
+      <tr><td>Document</td><td>PMID</td><td><code>24936838</code></td><td>1 risultato</td></tr>
+      <tr><td>Document</td><td>PMCID</td><td><code>PMC7500415</code></td><td>1 risultato</td></tr>
+      <tr><td>Document</td><td>arXiv</td><td><code>1909.01284</code></td><td><em>Gender-Based Homophily In Collaborations…</em></td></tr>
+      <tr><td>Document</td><td>ISBN</td><td><code>9780203417447</code></td><td>1 risultato</td></tr>
+      <tr><td>Document</td><td>OpenAlex</td><td><code>W4409315295</code></td><td>1 risultato</td></tr>
+      <tr><td>Document</td><td>OMID</td><td><code>br/06010123732</code></td><td>1 risultato</td></tr>
+      <tr><td>Author</td><td>ORCID</td><td><code>0000-0003-0530-4305</code></td><td>Silvio Peroni (10 record)</td></tr>
+      <tr><td>Author</td><td>ORCID</td><td><code>0000-0002-8420-0696</code></td><td>Arcangelo Massari (2 record)</td></tr>
+      <tr><td>Author</td><td>OMID</td><td><code>ra/0614010840729</code></td><td>1 risultato</td></tr>
+      <tr><td>Venue</td><td>ISSN</td><td><code>0138-9130</code></td><td>Scientometrics (57 record)</td></tr>
+      <tr><td>Venue</td><td>ISBN</td><td><code>9783662685099</code></td><td><em>Chirurgische Proktologie</em> (12 record)</td></tr>
+      <tr><td>Venue</td><td>OpenAlex</td><td><code>S148561398</code></td><td>Scientometrics (57 record)</td></tr>
+      <tr><td>Venue</td><td>OMID</td><td><code>br/06010060186</code></td><td>1 risultato</td></tr>
+      <tr><td>Organisation</td><td>Crossref ID</td><td><code>78</code></td><td>Elsevier BV</td></tr>
+      <tr><td>Organisation</td><td>Crossref ID</td><td><code>297</code></td><td>Springer Science and Business Media LLC</td></tr>
+      <tr><td>Organisation</td><td>OMID</td><td><code>ra/0610116009</code></td><td>1 risultato</td></tr>
+    </table></div>
+      </div>
+    </details>
+
+    <!-- ===================== CITATION RECORD ===================== -->
+    <h3>Pagina del record di citazione</h3>
+
+    <h4>Input</h4>
+    <ul>
+      <li>Dalla home si scrive l'<strong>OCI</strong>: <code>ci/&lt;OMID citing&gt;-&lt;OMID cited&gt;</code>, es. <code>ci/061302130471-061802636870</code></li>
+      <li>si potrebbe accettare una <strong>coppia di DOI</strong> (citing + cited): 2 chiamate SKG-IF per trovare i due OMID, poi costruzione OCI</li>
+      <li>Al momento la ricerca funziona solo con <code>ci/</code>("No template is suitable").</li>
+    </ul>
+      
+    <img src="img/screencitationrecord.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
+
+    <h4>Chiamate: 8 SKG-IF in parallelo + 2 Index per i grafici</h4>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>#</th><th>Cosa</th><th>Endpoint</th></tr>
+      <tr><td>1-2</td><td>card citing e cited</td><td><code>/products/&lt;OMID&gt;</code></td></tr>
+      <tr><td>3-4</td><td>References / Citations del citing</td><td><code>/products?filter=cf.cited_by:&lt;citing&gt;</code> / <code>cf.cites:&lt;citing&gt;</code></td></tr>
+      <tr><td>5-6</td><td>References / Citations del cited</td><td><code>/products?filter=cf.cited_by:&lt;cited&gt;</code> / <code>cf.cites:&lt;cited&gt;</code></td></tr>
+      <tr><td>7</td><td>Cited by Both</td><td><code>/products?filter=cf.cited_by:&lt;citing&gt;,cf.cited_by:&lt;cited&gt;</code></td></tr>
+      <tr><td>8</td><td>Citing Both</td><td><code>/products?filter=cf.cites:&lt;citing&gt;,cf.cites:&lt;cited&gt;</code></td></tr>
+      <tr><td>9-10</td><td>grafici per anno (citing e cited)</td><td><strong>Index</strong>: <code>/index/v2/citations/omid:br/&lt;id&gt;</code></td></tr>
+    </table></div>
+
+    <ul>
+      <li>Le chiamate 3-8 leggono solo il totale (<code>page_size=1</code> → <code>meta.part_of.total_items</code>), senza scaricare le liste.</li>
+      <li>L'esistenza della citazione si controlla nella lista <code>related_products.cites</code> del citing (quello che cita): nessuna chiamata in più. Verifica: <a href="https://api.opencitations.net/skg-if/v1/products/https://w3id.org/oc/meta/br/061302130471" target="_blank">/products/…/br/061302130471</a> (in <code>related_products.cites</code> c'è <code>…/br/061802636870</code>)</li>
+      <li>Cited by Both / Citing Both: con SKG-IF <strong>1 chiamata</strong> (il confronto lo fa l'API); con l'Index bisognerebbe scaricare due liste intere e confrontarle</li>
+      <li><code>cf.cites:X</code> = documenti che citano X (Citations); <code>cf.cited_by:X</code> = documenti citati da X (References); la virgola = E.</li>
+    </ul>
+
+    <h4>Come partono le 8 chiamate</h4>
+    <p>Le gestisce una <strong>funzione JS dedicata</strong>, <code>api_citation_record_skgif()</code> (<code>localbrowser.js</code>, sezione 8), chiamata dal <code>.hf</code> con <code>#callfun</code>, senza plugin. Le 8 chiamate SKG-IF partono <strong>tutte insieme</strong> (<code>Promise.all</code>) perché sono indipendenti. Fino all'ultima risposta resta il banner "Loading the resource...", poi la funzione riempie i campi e mostra la pagina. I 2 grafici dell'Index partono <strong>dopo</strong>, a pagina già visibile. Se qualcosa fallisce, la pagina si mostra lo stesso con un messaggio di errore.</p>
+
+    <h4>Il grafico</h4>
+    <ul>
+      <li>Il grafico ha bisogno della <strong>data di ogni citazione</strong>: SKG-IF non ha filtri per data: bisognerebbe scaricare tutte le citazioni</li>
+      <li>L'Index restituisce tutte le citazioni con la data (<code>creation</code>) in <strong>una chiamata</strong>, es. <a href="https://api.opencitations.net/index/v2/citations/omid:br/061802636870" target="_blank">/index/v2/citations/omid:br/061802636870</a></li>
+      <li>Nuova funzione <code>_skgifCitationsPerYearChart(boxId, id)</code> (<code>localbrowser.js</code>, sezione 8), <strong>riutilizzabile</strong></li>
+      <li>Le citazioni <strong>senza data</strong> vengono saltate</li>
+      <li>mostra solo gli anni con almeno una citazione</li>
+      <li>Il totale del grafico può essere un po' più basso del contatore (grafico by Index, contatore by SKG-IF).</li>
+    </ul>
+    <h4>i numeri</h4>
+    <ul>
+      <li>Tra index ed SKG-IF numeri possono differire di poco</li>
+    </ul>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Citazioni di <code>br/061802636870</code></th><th>Link</th><th>Risultato</th></tr>
+      <tr><td>SKG-IF</td><td><a href="https://api.opencitations.net/skg-if/v1/products?filter=cf.cites:https://w3id.org/oc/meta/br/061802636870&amp;page_size=1" target="_blank">/products?filter=cf.cites:…/br/061802636870</a></td><td>218 (<code>total_items</code>)</td></tr>
+      <tr><td>Index</td><td><a href="https://api.opencitations.net/index/v2/citation-count/omid:br/061802636870" target="_blank">/index/v2/citation-count/omid:br/061802636870</a></td><td>217</td></tr>
+    </table></div>
+
+    <!-- ===================== AUTHOR PROFILE ===================== -->
+    <h3>Scheda autore</h3>
+
+    <ul>
+      <li>Si apre cliccando un autore (in un risultato di ricerca o in un'altra scheda): <code>browser.html?value=ra/&lt;OMID&gt;</code></li>
+
+    <img src="img/screenauthorprofile.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
+
+    <h4>Chiamate: 2 SKG-IF in parallelo + 1 Meta per il grafico</h4>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>#</th><th>Cosa</th><th>Endpoint</th></tr>
+      <tr><td>1</td><td>nome, ORCID, altri identificativi</td><td><code>/persons/https://w3id.org/oc/meta/ra/&lt;OMID&gt;</code></td></tr>
+      <tr><td>2</td><td>lavori (a pagine) + totale Publications (<code>total_items</code>)</td><td><code>/products?filter=contributions.by.local_identifier:&lt;OMID completo&gt;</code></td></tr>
+      <tr><td>3</td><td>grafico per anno</td><td><strong>Meta REST</strong>: <code>/meta/v1/author/omid:ra/&lt;OMID&gt;</code></td></tr>
+    </table></div>
+    <ul>
+      <li>Una <strong>funzione JS dedicata</strong>, <code>api_author_record_skgif()</code>, fa partire le chiamate 1 e 2 <strong>insieme</strong> (<code>Promise.all</code>): sono indipendenti. Finché non arrivano, la pagina resta nascosta con il banner "Loading the resource..."; poi riempie i campi e mostra la pagina. Le pagine successive della lista si caricano con "Next" (la successiva viene già preparata in sottofondo). Il grafico (chiamata 3) parte <strong>dopo</strong>, a pagina già visibile, così non la rallenta.</li>
+    </ul>
+
+    <h4>Ruoli: author ed editor insieme</h4>
+    <ul>
+      <li>SKG-IF <strong>non permette di distinguere i ruoli</strong>: non esiste un filtro per ruolo. Il filtro <code>contributions.by.local_identifier</code> restituisce tutti i lavori in cui la persona compare nelle <code>contributions</code>, <strong>con qualunque ruolo</strong>.</li>
+      <li>Quindi lista e totale Publications contengono <strong>sia i lavori da author sia quelli da editor</strong></li>
+      <li><span class="ok">da fare</span>: aggiungere alla lista delle pubblicazioni il campo Editors (nessuna chiamata in più: <code>contributions</code>)</li>
+    </ul>
+
+    <h4>Ordine della lista</h4>
+    <ul>
+      <li>Prima ordine dei lavori <strong>per data</strong>, dal più recente. Con SKG-IF <strong>non si può</strong></li>
+    </ul>
+
+    <h4>Grafico "Publications per year": l'unica parte da Meta</h4>
+    <ul>
+      <li>SKG-IF non ha date filtrabili: bisognerebbe scaricare tutti i lavori. L'API REST di <strong>OpenCitations Meta</strong> restituisce tutti i lavori del record con la data (<code>pub_date</code>) in <strong>1 chiamata</strong>. Stessa soluzione usata per i grafici delle citazioni (lì con l'Index).</li>
+      <li><span class="ko">differenza:</span> per ora il grafico usa solo <code>/meta/v1/author/</code>, che restituisce <strong>solo i lavori da author</strong>, mentre il contatore SKG-IF ha tutti i ruoli. I lavori senza data saltano nel grafico.</li>
+      <li><strong>Da fare:</strong> aggiungere la chiamata a <code>/meta/v1/editor/</code> e togliere i duplicati (lavori in cui è sia author sia editor), così il grafico conta sia le pubblicazioni da author sia quelle da editor e torna con il totale SKG-IF. <a href="https://api.opencitations.net/meta/v1/editor/omid:ra/0614010840729" target="_blank">/meta/v1/editor/omid:ra/0614010840729</a></li>
+      <li>Disegno del grafico in comune con quelli delle citazioni: <code>_skgifYearChart()</code>; la funzione dell'autore è <code>_skgifPublicationsPerYearChart()</code> (sez 8, js)</li>
+      <li><a href="https://api.opencitations.net/meta/v1/author/omid:ra/0614010840729" target="_blank">/meta/v1/author/omid:ra/0614010840729</a></li>
+    </ul>
+
+    <h3>da fare</h3>
+    <ul>
+      <li>Scheda venue</li>
+      <li>Scheda organisation</li>
+      <li>Modificare l'intestazione dei risultati (es. come una reference bibliografica)</li>
+    </ul>
+
+    <h3>Q</h3>
+    <ul>
+      <li><strong>Publisher ed editor: dove inserirli?</strong></li>
+      <li><strong>Publisher ed editor: dove puntano?</strong> Publisher → futura scheda organisation; editor → profilo autore (distinguendo author/editor)? Oppure la pagina del record OpenCitations Meta</li>
+      <li><strong>Contatori di References e Citations:</strong> SKG-IF/Index</li>
+      <li><strong>Metadati della citazione</strong> Esistono solo nell'Index. Es: <a href="https://api.opencitations.net/index/v2/citation/061302130471-061802636870" target="_blank">/index/v2/citation/061302130471-061802636870</a></li>
+      <li><strong>Input del record di citazione:</strong>coppia di DOI (citing + cited)?</li>
+      <li><strong>Profilo autore: distinguere author ed editor?</strong>. Esempio di persona sia author sia editor: <a href="https://api.opencitations.net/skg-if/v1/products?filter=contributions.by.local_identifier:https://w3id.org/oc/meta/ra/067073407&amp;page_size=50" target="_blank">/products?filter=contributions.by.local_identifier:…/ra/067073407</a></li>
+      <li>filtro su venue</li>
+    </ul>
+
+  </div>
+</details>
+
+      <!-- SETTIMANA 2 -->
+<details>
   <summary>
     05/10/2026
   </summary>
