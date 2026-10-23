@@ -196,6 +196,8 @@
     .ok { color: #15803d; font-weight: 600; }
     .ko { color: #b91c1c; font-weight: 600; }
     .foto { border: 2px dashed var(--border); border-radius: 8px; padding: 18px; margin: 8px 0 16px; text-align: center; color: var(--muted); font-size: 0.85rem; }
+    .content h3.sezione { margin-top: 32px; padding: 8px 14px; background: var(--accent-soft); color: var(--accent); border-left: 4px solid var(--accent); border-radius: 6px; font-size: 1rem; }
+    .content hr.sep { border: none; border-top: 2px dashed var(--border); margin: 20px 0; }
     .foto img { max-width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; }
 
     footer {
@@ -224,8 +226,186 @@
 
     <main class="entries">
 
-      <!-- SETTIMANA 3 -->
+      <!-- SETTIMANA 4 -->
 <details open>
+  <summary>
+    26/10/2026
+  </summary>
+  <div class="content">
+    
+
+    <!-- ===================== AUTORE ===================== -->
+    <h3 class="sezione">Profilo autore</h3>
+    <h4>Example</h4>
+    <img src="img/profiloautore.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
+    <h4>Video</h4>
+    <video src="video/autore.mp4" controls preload="metadata" playsinline style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px; margin-top:12px;">
+      Il browser non supporta il video. <a href="video/autore.mp4">Scarica il video</a>.
+    </video>
+
+    <h4>Chiamate</h4>
+    <ul>
+      <li>scelta template + metadati → <code>/persons/{OMID}</code> (200 = autore; same URL, 1 sola richiesta)</li>
+      <li>numero di opere → <code>/products?filter=contributions.by.local_identifier:{OMID}&amp;page_size=1</code> (<code>total_items</code>)</li>
+      <li>prime 10 opere → stesso filtro, <code>page_size=10</code></li>
+      <li>tutte le altre opere (JS) → stesso filtro, pagine da 10, max 6 in parallelo</li>
+    </ul>
+
+    <h4><code>new_ra_browser.hf</code></h4>
+<pre><code>#id main
+#url value=ra/{id}
+#api https://api.opencitations.net/skg-if/v1/persons/https://w3id.org/oc/meta/ra/[[id]]
+
+#id author_meta
+#api https://api.opencitations.net/skg-if/v1/persons/https://w3id.org/oc/meta/ra/[[id]]
+#postprocess post_skgif_person(id)
+
+#id author_works
+#api https://api.opencitations.net/skg-if/v1/products?filter=contributions.by.local_identifier:https%3A%2F%2Fw3id.org%2Foc%2Fmeta%2Fra%2F[[id]]&amp;page=1&amp;page_size=1
+#postprocess post_skgif_total()
+
+#id author_works_page
+#api https://api.opencitations.net/skg-if/v1/products?filter=contributions.by.local_identifier:https%3A%2F%2Fw3id.org%2Foc%2Fmeta%2Fra%2F[[id]]&amp;page=1&amp;page_size=10
+
+#id author_record
+#callfun api_author_record_skgif()</code></pre>
+
+<h4>Notes</h4>
+    <ul>
+      <li>filtri e grafico si attivano dopo che sono state scaricate tutte le pubbliazioni</li>
+      <li>filtro di ricerca nel titolo: gestito lato client perchè viene sempre scaricato tutto</li>
+      <li>cliccando su un anno del grafico si vedono le pubblicazioni di quell'anno nella lista sotto</li>
+      <li>si puo cliccare sul numero delle pubblicazioni</li>
+    </ul>
+
+    <!-- ===================== DOCUMENTO ===================== -->
+    <h3 class="sezione">Scheda documento</h3>
+    <h4>Notes</h4>
+    <ul>
+      <li>fino a 250 scarcamento automatico</li>
+      <li>da 250 a 1500: click on button to download</li>
+      <li>da 1500 in su: non è possibile scaricare</li>
+      <li>stime</li>
+    </ul>
+
+    <h4>Video</h4>
+    <video src="video/documenti.mp4" controls preload="metadata" playsinline style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px; margin-top:12px;">
+      Il browser non supporta il video. <a href="video/documenti.mp4">Scarica il video</a>.
+    </video>
+    <h4>Soglia sopra 250 (opzione: da scaricare)</h4>
+    <figure style="margin:28px 0 0; text-align:center;">
+      <img src="img/citazionidacsaricare.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
+      <figcaption style="font-size:0.9em; color:#6b7280; margin-top:6px;">Prima del caricamento: bottone "Load all citations" (grafico e lista)</figcaption>
+    </figure>
+    <hr class="sep">
+
+    <figure style="margin:28px 0 0; text-align:center;">
+      <img src="img/loadingcitations.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
+      <figcaption style="font-size:0.9em; color:#6b7280; margin-top:6px;">While loading: citazioni in caricamento (barra di avanzamento)</figcaption>
+    </figure>
+    <hr class="sep">
+
+    <h4>Soglia sopra 1500</h4>
+    <figure style="margin:28px 0 0; text-align:center;">
+      <img src="img/troppecit.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
+      <figcaption style="font-size:0.9em; color:#6b7280; margin-top:6px;">Sopra 1500</figcaption>
+    </figure>
+    <hr class="sep">
+
+
+    <h4>Chiamate</h4>
+    <ul>
+      <li>scelta template → <code>/venues/{OMID}</code> (404 = documento)</li>
+      <li>metadati → <code>/products/{OMID}</code></li>
+      <li>numero di references → <code>/products?filter=cf.cited_by:{OMID}&amp;page_size=1</code> (<code>total_items</code>)</li>
+      <li>numero di citations → <code>/products?filter=cf.cites:{OMID}&amp;page_size=1</code> (<code>total_items</code>)</li>
+      <li>prime 10 references / citations → stessi filtri, <code>page_size=10</code></li>
+      <li>liste complete (JS) → stessi filtri, pagine da 50, 4 in parallelo: 1 chiamata ogni 50</li>
+    </ul>
+
+    <h4><code>new_br_any_browser.hf</code></h4>
+<pre><code>#id main
+#url value=br/{omid_digit}
+
+#id doc_meta
+#api https://api.opencitations.net/skg-if/v1/products/https://w3id.org/oc/meta/br/[[omid_digit]]
+#postprocess post_skgif_document(omid_digit)
+
+#id doc_refs
+#api https://api.opencitations.net/skg-if/v1/products?filter=cf.cited_by:https%3A%2F%2Fw3id.org%2Foc%2Fmeta%2Fbr%2F[[omid_digit]]&amp;page=1&amp;page_size=1
+#postprocess post_skgif_total()
+
+#id doc_refs_page
+#api https://api.opencitations.net/skg-if/v1/products?filter=cf.cited_by:https%3A%2F%2Fw3id.org%2Foc%2Fmeta%2Fbr%2F[[omid_digit]]&amp;page=1&amp;page_size=10
+
+#id doc_cits
+#api https://api.opencitations.net/skg-if/v1/products?filter=cf.cites:https%3A%2F%2Fw3id.org%2Foc%2Fmeta%2Fbr%2F[[omid_digit]]&amp;page=1&amp;page_size=1
+#postprocess post_skgif_total()
+
+#id doc_cits_page
+#api https://api.opencitations.net/skg-if/v1/products?filter=cf.cites:https%3A%2F%2Fw3id.org%2Foc%2Fmeta%2Fbr%2F[[omid_digit]]&amp;page=1&amp;page_size=10
+
+#id document_record
+#callfun api_document_record_skgif()</code></pre>
+
+    <!-- ===================== ORGANIZZAZIONE ===================== -->
+    <h3 class="sezione">Scheda organizzazione</h3>
+    <figure style="margin:28px 0 0; text-align:center;">
+      <img src="img/organizzazione.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
+      <figcaption style="font-size:0.9em; color:#6b7280; margin-top:6px;">Schermata organizzazione (+1500 publ)</figcaption>
+    </figure>
+    <hr class="sep">
+
+    <figure style="margin:28px 0 0; text-align:center;">
+      <img src="img/organizzazioniconfitri.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
+      <figcaption style="font-size:0.9em; color:#6b7280; margin-top:6px;">Schermata organizzazione (250-1500 pubbl)</figcaption>
+    </figure>
+    <h4>Chiamate</h4>
+    <ul>
+      <li>scelta template → <code>/persons/{OMID}</code> (non 200 → scheda organizzazione, che chiede subito <code>/organisations/{OMID}</code>)</li>
+      <li>metadati (nome, ID) → <code>/organisations/{OMID}</code> (Lucinda, <code>org_meta</code>)</li>
+      <li>numero di pubblicazioni → <code>/products?filter=contributions.by.local_identifier:{OMID}&amp;page_size=1</code> (<code>total_items</code>; Lucinda, <code>org_works</code>)</li>
+      <li>prime 10 pubblicazioni → stesso filtro, <code>page_size=10</code> (Lucinda, <code>org_works_page</code>)</li>
+      <li>lista completa (JS, <code>api_org_record_skgif</code>) → stesso filtro, pagine da 50, 4 in parallelo: automatico ≤ 500, bottone ≤ 1500</li>
+    </ul>
+
+    <h4><code>new_org_browser.hf</code></h4>
+<pre><code>#id main
+#url value=ra/{id}
+
+#id org_meta
+#api https://api.opencitations.net/skg-if/v1/organisations/https://w3id.org/oc/meta/ra/[[id]]
+#postprocess post_skgif_org(id)
+
+#id org_works
+#api https://api.opencitations.net/skg-if/v1/products?filter=contributions.by.local_identifier:https%3A%2F%2Fw3id.org%2Foc%2Fmeta%2Fra%2F[[id]]&amp;page=1&amp;page_size=1
+#postprocess post_skgif_total()
+
+#id org_works_page
+#api https://api.opencitations.net/skg-if/v1/products?filter=contributions.by.local_identifier:https%3A%2F%2Fw3id.org%2Foc%2Fmeta%2Fra%2F[[id]]&amp;page=1&amp;page_size=10
+
+#id org_record
+#callfun api_org_record_skgif()</code></pre>
+
+
+    <!-- ===================== RIVISTA ===================== -->
+    <h3 class="sezione">Scheda rivista</h3>
+    <ul>
+      <li>serve filtro</li>
+    </ul>
+
+    <!-- ===================== CITAZIONE ===================== -->
+    <h3 class="sezione">Record di citazione</h3>
+    <h4>Video</h4>
+    <video src="video/citationrecord.mp4" controls preload="metadata" playsinline style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px; margin-top:12px;">
+      Il browser non supporta il video. <a href="video/citationrecord.mp4">Scarica il video</a>.
+    </video>
+
+  
+</details>
+
+      <!-- SETTIMANA 3 -->
+<details>
   <summary>
     12/10/2026
   </summary>
