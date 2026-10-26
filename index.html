@@ -401,7 +401,115 @@
       Il browser non supporta il video. <a href="video/citationrecord.mp4">Scarica il video</a>.
     </video>
 
-  
+    <!-- ===================== PROPOSTA DI TESI ===================== -->
+    <h3 class="sezione">Proposta di tesi</h3>
+    <details style="margin:12px 0;">
+      <summary>Proposta di tesi resource-centric: LUCINDA per OpenCitations su SKG-IF</summary>
+      <div style="padding:12px;">
+    <ul>
+      <li><strong>resource-centric</strong> thesis = prodotto principale del lavoro è una risorsa e il testo diventa un paper che la presenta</li>
+      <li>La risorsa è un <strong>software:</strong> codice che interroga un'API, trasforma i dati e genera le pagine al momento</li>
+      <li><strong>(ATLAS guidelines per software punto 1) = Before creating new software from scratch, investigate existing similar solutions and explore opportunities to further develop or adapt them, promoting the reuse and enhancement of existing resources. = Riutilizzo</strong> del motore LUCINDA con le sue funzionalità (esteso con il blocco <code>#api</code>), l'architettura dei template (coppie hf/html, file js come addon), estensione del progetto dell'interfaccia precedente + riscrittura delle funzioni visto che è cambiata la fonte dei dati</li>
+      <li><strong>Pro:</strong> interfaccia utente costruita su SKG-IF</li>
+    </ul>
+
+    <h4>White paper: cosa va in ogni sezione obbligatoria</h4>
+    <p><strong>1) Frontespizio</strong></p>
+
+    <p><strong>2) Basic metadata</strong></p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Campo</th><th>Proposta</th></tr>
+      <tr><td>Resource type</td><td>Software (web application)</td></tr>
+      <tr><td>Title</td><td>Nome con parole chiave e acronimi sciolti secondo le general guidelines ATLAS, es. «LUCINDA for OpenCitations: a template-based browser for open citation data built on the Scholarly Knowledge Graph Interoperability Framework (SKG-IF)»</td></tr>
+      <tr><td>PID</td><td>DOI Zenodo, ottenuto al rilascio ???</td></tr>
+      <tr><td>URL</td><td>punti di accesso ai dati: Repository GitHub ed eventuale demo su GitHub Pages ? + eventuale Zenodo</td></tr>
+      <tr><td>Authors (CRediT)</td><td>nome, orcid, istituzione, ruolo, contatto delle persone coinvolte = chi e quale ordine</td></tr>
+      <tr><td>Version</td><td>?</td></tr>
+      <tr><td>Licenses</td><td>Codice ISC; documentazione CC BY 4.0 (proposta); dati OpenCitations CC0</td></tr>
+      <tr><td>Formats</td><td>HTML, CSS, JavaScript, template .hf; dati JSON-LD (SKG-IF)</td></tr>
+      <tr><td>Stato del lavoro sul readme</td><td>da specificare</td></tr>
+    </table></div>
+
+    <p><strong>3) Abstract</strong></p>
+    <p>Problema (browser legato a SPARQL), soluzione (migrazione a SKG-IF...), risultato, possibilità di riuso.</p>
+
+    <p><strong>4) Introduction</strong></p>
+    <ul>
+      <li>perché la risorsa prodotta è uno strumento scientifico</li>
+      <li><strong>Ambito DH:</strong> comunicazione scientifica e Open Science; interoperabilità tra infrastrutture europee (SKG-IF, RDA, OPERAS)</li>
+      <li><strong>Progetto e contesto d'uso:</strong> inquadramento OpenCitations, come il prodotto scientifico ne fa parte, perché passare a SKG-IF, ruolo del browser; utenti (ricercatori, bibliometria, team OC), lavoro e attività di tirocinio</li>
+      <li><strong>Lavori precedenti e stato dell'arte:</strong> LUCINDA (Heibi), configurazione su OC di Pietro; altri browser di dati di citazione (OpenAlex, Semantic Scholar, Lens, OpenAIRE Explore, Scholia); browser Linked Data (LodView, Pubby); altre implementazioni SKG-IF (altri endpoints/implementors <a href="https://skg-if.github.io/api/docs/api-implementors.html">https://skg-if.github.io/api/docs/api-implementors.html</a>).</li>
+      <li><strong>Research questions:</strong> (1) si può riprodurre con SKG-IF un browser nato su SPARQL? (2) cosa manca in SKG-IF per un'interfaccia di questo tipo? (3) come adattare un motore a template come LUCINDA a un'API REST/JSON-LD?</li>
+      <li>novità del contributo</li>
+    </ul>
+
+    <p><strong>5) Description</strong></p>
+    <p>Organizzata secondo le fasi ATLAS (Identify → Plan → Produce → Deposit):</p>
+    <ol style="padding-left:22px; margin-bottom:12px;">
+      <li><strong>Analisi</strong> del browser di Pietro e delle sue query</li>
+      <li><strong>Mapping 1-a-1</strong> SPARQL/REST → SKG-IF</li>
+      <li><strong>Architettura:</strong> blocco <code>#api</code>, controllo del tipo di risorsa senza ASK, separazione dati/vista; pattern usati (es: Adapter, cache, timeout e retry, caricamento progressivo...).</li>
+      <li><strong>Pagine realizzate:</strong> ricerche, schede autore/documento/rivista/organizzazione, record OCI.</li>
+      <li><strong>Limiti di SKG-IF e soluzioni dove possibili = individuazione dei casi senza equivalente (conteggi es.):</strong> OCI non è un'entità in skg-if, niente ordinamento né filtri per data in skg-if, risposte tagliate soprattutto con carichi molto grandi...</li>
+      <li><strong>Valutazione tecnica (da fare):</strong> test documentati (punto 2 linee guida ATLAS per software), copertura rispetto al browser di Pietro, numero di chiamate e tempi</li>
+      <li><strong>Rilascio e deposito (da fare):</strong> GitHub, versioni, changelog, Zenodo, Software Heritage</li>
+      <li><strong>Considerazioni etiche e legali (da fare)</strong></li>
+    </ol>
+
+    <p><strong>6) Impact and reusability</strong></p>
+    <ul>
+      <li><strong>Impatto:</strong> accademico (browser per gli SKG di OC; limiti di SKG-IF documentati), istituzionale (team OC), pedagogico (esempio di migrazione da SPARQL ad API).</li>
+      <li><strong>Riuso tecnico:</strong> uso con altri endpoint SKG-IF, entità non presenti in OC; <strong>legale:</strong> ISC + CC0; <strong>epistemico:</strong> scelte e limiti dichiarati nel codice e nella documentazione.</li>
+      <li><strong>Manutenzione dopo la tesi</strong> e conservazione</li>
+      <li><strong>Autovalutazione:</strong> tabella ATLAS + FAIR4RS + 17 metriche FAIR-IMPACT.</li>
+    </ul>
+
+    <p><strong>7) Conclusion (facoltativa)</strong></p>
+    <p><strong>8) References</strong></p>
+
+    <h4>Criteri di valutazione</h4>
+    <p><a href="https://dh-atlas.github.io/guidelines/general.html">ATLAS generali</a> e <a href="https://dh-atlas.github.io/guidelines/sw.html">ATLAS Software</a>, FAIR4RS Principles, RSMD Guidelines e le 17 metriche FAIR-IMPACT (Chue Hong et al. 2023). Eventuale criterio aggiuntivo: conformità a SKG-IF</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Raccomandazione</th><th>Proposta</th></tr>
+      <tr><td>Generali: facile da trovare</td><td>Titolo con parole chiave, README come landing page</td></tr>
+      <tr><td>Generali: facile da citare</td><td>Crediti CRediT e ORCID, istruzioni per citare, piano di manutenzione, licenze</td></tr>
+      <tr><td>Generali: facile da usare</td><td>Guida utente con esempi, documentazione <code>#api</code></td></tr>
+      <tr><td>SW 1. Riuso</td><td>Motore e progetto riusati, riscrittura funzioni</td></tr>
+      <tr><td>SW 2. Buone pratiche e test</td><td>Test documentati, dipendenze e requisiti; moduli</td></tr>
+      <tr><td>SW 3. Integrazione via API ed errori</td><td>gestione errori, interoperabilità formato dati...</td></tr>
+      <tr><td>SW 4. Standard aperti</td><td>HTML, CSS, JavaScript (ECMAScript), JSON-LD...</td></tr>
+      <tr><td>SW 5. Sviluppo aperto</td><td></td></tr>
+      <tr><td>SW 6. Rilascio</td><td></td></tr>
+      <tr><td>SW 7. Deposito</td><td></td></tr>
+    </table></div>
+
+    <h4>README di GitHub come landing page</h4>
+    <p>Il README attuale (fork) descrive ancora il vecchio LUCINDA basato su SPARQL («The OpenCitations RDF Resource Browser (v3.0)»). da aggiornare</p>
+
+    <h4>Lavoro dopo la migrazione 1-a-1</h4>
+    <p>La migrazione delle pagine è quasi completa (resta in stand-by la lista delle pubblicazioni nel profilo rivista e come gestire grafici e filtering/sorting negli altri casi)</p>
+    <p><strong>Codice</strong></p>
+    <ul>
+      <li>Fissare la versione di Chart.js</li>
+      <li>commenti</li>
+      <li>Dividere <code>js addon</code> in moduli?</li>
+      <li>scheda venue con pubblicazioni</li>
+      <li>sistemare le schede doc/organizzazione</li>
+    </ul>
+    <p><strong>Test e valutazione</strong></p>
+    <ul>
+      <li>Tabella di 15–25 casi di prova per tutte le pagine e i casi limite</li>
+      <li>Misure di tempi e numero di chiamate</li>
+      <li>Tabella di copertura</li>
+    </ul>
+    <p><strong>Documentazione e rilascio</strong></p>
+    <ul>
+      <li>README nuovo, guida per chi usa il browser e guida per chi usa la configurazione</li>
+    </ul>
+      </div>
+    </details>
+
+
 </details>
 
       <!-- SETTIMANA 3 -->
