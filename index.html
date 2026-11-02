@@ -199,6 +199,19 @@
     .content h3.sezione { margin-top: 32px; padding: 8px 14px; background: var(--accent-soft); color: var(--accent); border-left: 4px solid var(--accent); border-radius: 6px; font-size: 1rem; }
     .content hr.sep { border: none; border-top: 2px dashed var(--border); margin: 20px 0; }
     .foto img { max-width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; }
+    .foto:has(img) { border: none; padding: 0; }
+
+    /* Lightbox: clic su un'immagine per ingrandirla e scorrere le altre */
+    .content img { cursor: zoom-in; }
+    #lightbox { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.88); align-items: center; justify-content: center; flex-direction: column; }
+    #lightbox.aperto { display: flex; }
+    #lightbox img { max-width: 92vw; max-height: 85vh; border-radius: 6px; background: #fff; cursor: default; }
+    #lightbox .lb-info { color: #ddd; font-size: 0.85rem; margin-top: 10px; }
+    #lightbox button { position: absolute; background: rgba(255,255,255,0.15); color: #fff; border: none; border-radius: 50%; width: 48px; height: 48px; font-size: 1.6rem; cursor: pointer; }
+    #lightbox button:hover { background: rgba(255,255,255,0.3); }
+    #lightbox .lb-chiudi { top: 16px; right: 16px; }
+    #lightbox .lb-prec { left: 16px; top: 50%; transform: translateY(-50%); }
+    #lightbox .lb-succ { right: 16px; top: 50%; transform: translateY(-50%); }
 
     footer {
       text-align: center;
@@ -225,6 +238,364 @@
     </header>
 
     <main class="entries">
+
+      <!-- SETTIMANA 5 -->
+<details open>
+  <summary>
+    02/11/2026
+  </summary>
+  <div class="content">
+
+    <!-- ===================== ATTIVITÀ ===================== -->
+    <!-- ===================== GRAFICA ===================== -->
+    <h3 class="sezione">Restyling grafico: prima e dopo</h3>
+    <p>Interfaccia allineata allo stile del sito principale <a href="https://opencitations.net" target="_blank">opencitations.net</a></p>
+    <h4>Home</h4>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div class="foto">prima<br><img src="img/homeprima.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;"></div>
+      <div class="foto">dopo<br><img src="img/homedopo.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;"></div>
+    </div>
+
+    <h4>References</h4>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div class="foto">prima<br><img src="img/referencesprima.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;"></div>
+      <div class="foto">dopo<br><img src="img/referencesdopo.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;"></div>
+    </div>
+
+     <h4>Profilo autore</h4>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div class="foto">prima<br><img src="img/profiloautoreprima.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;"></div>
+      <div class="foto">dopo<br><img src="img/profiloautoredopo.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;"></div>
+    </div>
+
+    <h4>Scheda rivista</h4>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div class="foto">prima<br><img src="img/documentiprima.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;"></div>
+      <div class="foto">dopo<br><img src="img/documentidopo.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;"></div>
+    </div>
+
+    <!-- ===================== FILTRI E FUNZIONALITÀ ===================== -->
+    <h3 class="sezione">Filtri e funzionalità (da siti affini)</h3>
+    <h4>Siti confrontati</h4>
+    <ul>
+      <li><a href="https://explore.openaire.eu" target="_blank">OpenAIRE Explore</a></li>
+      <li><a href="https://openalex.org" target="_blank">OpenAlex</a></li>
+      <li><a href="https://www.semanticscholar.org" target="_blank">Semantic Scholar</a></li>
+    </ul>
+
+    <h4>PEr es ho aggiunto:</h4>
+    <ul>
+      <li>ricerca riviste: filtro <strong>Type</strong> (journal, book, conference, repository, other, unknown) nella home e sopra i risultati (<code>/venues?filter=cf.search.name:...,type:...</code>)</li>
+      <li><strong>Show [10/20/50] entries</strong> nei risultati delle ricerche e nelle pagine Go to References/Citations (1 chiamata per pagina, max 50 dell'API)</li>
+      <li>stato con intervallo, come OpenAlex: "11–20 of 240 citations" (0 chiamate)</li>
+      <li>filtro Year evidenziato nel grafico, barre fuori intervallo sbiadite (0 chiamate)</li>
+      <li>clic su una barra del grafico = filtro per anno</li>
+    </ul>
+
+    <!-- ===================== PROPOSTE ===================== -->
+    <h3 class="sezione">Proposte</h3>
+    <p>"A lista scaricata" = solo sotto le soglie di grafico/filtri.</p>
+    <h4>Profilo autore</h4>
+    <ul>
+      <li>co-autori principali: 10 più frequenti con le opere in comune (0 chiamate)</li>
+      <li>riviste in cui pubblica di più (0 chiamate)</li>
+      <li>anni di attività nell'Overview (0 chiamate)</li>
+      <li>esporta la lista in CSV/BibTeX (0 chiamate)</li>
+    </ul>
+    <h4>Scheda documento</h4>
+    <ul>
+      <li>"Cite": APA/BibTeX/RIS, Copia/Scarica (0 chiamate)</li>
+      <li>bottone "Open at publisher" sotto il titolo (<code>doi.org/&lt;doi&gt;</code>, 0 chiamate)</li>
+      <li>filtro "Source" nelle liste References/Citations (a lista scaricata, 0 chiamate)</li>
+      <li>"Top citing sources/authors": 5 + 5, cliccabili per filtrare (a lista scaricata, 0 chiamate)</li>
+      <li>esporta la lista, tutta o filtrata (0 chiamate)</li>
+    </ul>
+    <h4>Scheda organizzazione</h4>
+    <ul>
+      <li>"Top sources" cliccabili per filtrare (a lista scaricata, 0 chiamate)</li>
+      <li>filtro "Source" (0 chiamate)</li>
+      <li>esporta la lista (0 chiamate)</li>
+    </ul>
+    
+    <h4>Scartate</h4>
+    <ul>
+      <li>citazioni totali dell'autore (1 chiamata per opera, niente OR in <code>cf.cites</code>)</li>
+      <li>affiliazioni, paese, h-index, argomenti, abstract, open access, finanziamenti (non in SKG-IF OC)</li>
+    </ul>
+
+    <!-- ===================== VIDEO ===================== -->
+    <h3 class="sezione">Video</h3>
+    <h4>Scheda documento</h4>
+    <video src="video/videodocumenti.mp4" controls preload="metadata" playsinline style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px; margin-top:12px;">
+      Il browser non supporta il video. <a href="video/videodocumenti.mp4">Scarica il video</a>.
+    </video>
+    <h4>Profilo autore e scheda organizzazione</h4>
+    <video src="video/author_org_video.mp4" controls preload="metadata" playsinline style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px; margin-top:12px;">
+      Il browser non supporta il video. <a href="video/author_org_video.mp4">Scarica il video</a>.
+    </video>
+    <h4>Record di citazione</h4>
+    <video src="video/ocivideo.mp4" controls preload="metadata" playsinline style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px; margin-top:12px;">
+      Il browser non supporta il video. <a href="video/ocivideo.mp4">Scarica il video</a>
+    </video>
+
+
+    <!-- ===================== MISURAZIONI ===================== -->
+    <h3 class="sezione">Misurazioni: tempi di download</h3>
+    <p>Pagine da 50 elementi, al massimo 4 chiamate contemporaneamente: appena ne finisce una, parte la successiva. Se una pagina non arriva, viene rifatta in pagine da 10 e poi da 1. Solo in quel caso le chiamate aumentano.</p>
+
+    <h4>Scheda documento (tempi scaricamento citazioni e references)</h4>
+    <ul>
+      <li><strong>≤ 250 citazioni, scaricamento automatico sotto la soglia di 250</strong>: tempo misurato dal <strong>caricamento della pagina</strong></li>
+      <li><strong>da 500 a 1.500 citazioni</strong>: tempo misurato da quando viene <strong>premuto il bottone di scaricamento</strong> ("Load all citations")</li>
+      <li><strong>sopra 1500</strong>: chart not available e filtri non attivi</li>
+      <img src="img/chartnotavailable.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
+    </ul>
+    <p><strong>02/11</strong></p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Documento</th><th>Citazioni</th><th>Tempo scaricamento citazioni</th><th>References</th><th>Tempo scaricamento references</th></tr>
+      <tr><th colspan="5" style="background:#ede9fe;">Scaricamento automatico (≤ 250) — tempo dal caricamento della pagina</th></tr>
+      <tr><td><code>br/062103071709</code></td><td>30</td><td>3 s</td><td>2</td><td>0,1 s</td></tr>
+      <tr><td><code>br/06230693830</code></td><td>100</td><td>5 s</td><td>14</td><td>0,1 s</td></tr>
+      <tr><td><code>br/061803116068</code></td><td>132</td><td>6 s</td><td>9</td><td>0,2 s</td></tr>
+      <tr><td><code>br/061303011318</code></td><td>159</td><td>25 s</td><td>17</td><td>0,2 s</td></tr>
+      <tr><th colspan="5" style="background:#ede9fe;">Bottone di scaricamento (500 – 1.500) — tempo dal clic sul bottone</th></tr>
+      <tr><td><code>br/061203479738</code></td><td>502</td><td>10 s</td><td>9</td><td>0,1 s</td></tr>
+      <tr><td><code>br/061203492121</code></td><td>746</td><td>28 s</td><td>5</td><td>0,2 s</td></tr>
+      <tr><td><code>br/061401775564</code></td><td>1.010</td><td>56 s</td><td>18</td><td>0,2 s</td></tr>
+      <tr><td><code>br/06130196593</code></td><td>1.329</td><td>30 s</td><td>4</td><td>0,1 s</td></tr>
+    </table></div>
+
+    <p><strong>28/10</strong></p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Documento</th><th>Citazioni</th><th>Tempo scaricamento citazioni</th><th>Rimisurazione 2/11</th></tr>
+      <tr><th colspan="4" style="background:#ede9fe;">Scaricamento automatico (≤ 250) — tempo dal caricamento della pagina</th></tr>
+      <tr><td><code>br/0603906808</code></td><td>149</td><td>5 s</td><td>7 s</td></tr>
+      <tr><td><code>br/061303726043</code></td><td>200</td><td>14 s</td><td>19 s</td></tr>
+      <tr><td><code>br/06150571421</code></td><td>236</td><td>30 s</td><td>34 s</td></tr>
+      <tr><th colspan="4" style="background:#ede9fe;">Bottone di scaricamento (500 – 1.500) — tempo dal clic sul bottone</th></tr>
+      <tr><td><code>br/061103361212</code></td><td>530</td><td>18 s</td><td>16 s</td></tr>
+      <tr><td><code>br/061203492121</code></td><td>746</td><td>48 s</td><td>9 s</td></tr>
+      <tr><td><code>br/061503295106</code></td><td>1.103</td><td>26 s</td><td>31 s</td></tr>
+      <tr><td><code>br/06120195307</code></td><td>1.239</td><td>37 s</td><td>33 s</td></tr>
+    </table></div>
+
+    <h4>Scheda organizzazione (scaricamento pubblicazioni)</h4>
+    <ul>
+      <li>scheda organizzazione: scaricamento automatico pubblicazioni ≤ 500, bottone "Load all publications" ≤ 1.500, oltre solo lista sfogliabile</li>
+      <img src="img/loadallbottone.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;">
+    </ul>
+    <p><strong>2/11</strong></p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Organizzazione</th><th>Pubblicazioni</th><th>Scaricamento Pubbicazioni</th></tr>
+      <tr><td><code>ra/0630115182</code></td><td>347</td><td>0,1 s</td></tr>
+      <tr><td><code>ra/0610116871</code></td><td>720</td><td>0,3 s</td></tr>
+      <tr><td><code>ra/06011045248</code></td><td>849</td><td>14 s</td></tr>
+      <tr><td><code>ra/0610116836</code></td><td>1.029</td><td>32 s</td></tr>
+      <tr><td><code>ra/0610116342</code></td><td>1.122</td><td>35 s</td></tr>
+    </table></div>
+
+    <h4>Notes</h4>
+    <p>tempi variabili a parità di numero, stesso documento in momenti diversi ha misurazioni diverse
+    </p>
+    <ul>
+      <li>Pagine che vanno in timeout. Se una pagina da 50 non risponde entro 35 s, il codice la rifà in 5 pagine da 10 (15 s ciascuna) e, se serve, in pagine da 1 (10 s)</li>
+      <li>Carico del server</li>
+      <li>Contenuto delle pagine. Non conta solo quante citazioni ci sono, ma anche quanto sono "pesanti" i record. Un'opera con centinaia di autori produce una risposta enorme</li>
+    </ul>
+
+
+    <!-- ===================== CODICE IN MODULI ===================== -->
+    <h3 class="sezione">Organizzazione del codice in moduli</h3>
+    <ul>
+      <li>codice diviso per compito: file comuni + un file per pagina</li>
+      <li>La divisione in file serve solo a ordinare il codice: essendo script classici, al caricamento tutte le funzioni vanno in window, come se fossero in un unico file. È necessario perché Lucinda cerca per nome le funzioni indicate nei .hf (window[nome]); con i moduli ES non le troverebbe.</li>
+      <li>caricati da <code>browser.html</code> in ordine: config → core → ui → lists → cards → views → pages</li>
+    </ul>
+<pre><code>browser/
+├── legacy/localbrowser_pietro.js   codice SPARQL di Pietro, non caricato
+└── skgif/
+    ├── config.js     endpoint e URL (unico file che dipende dall'endpoint)
+    ├── core.js       fetch, cache, timeout, ripieghi 50→10→1
+    ├── ui.js         menu, filtri, grafico per anno, copia
+    ├── lists.js      liste a pagine, ricerche paginate
+    ├── cards.js      card dei documenti, ID, nomi
+    ├── views.js      view functions skgif_* usate da Lucinda nei template
+    └── pages/
+        ├── search.js     ricerche
+        ├── doc-lists.js  Go to References/Citations
+        ├── document.js   scheda documento
+        ├── author.js     profilo autore
+        ├── org.js        scheda organizzazione
+        ├── venue.js      scheda rivista
+        └── citation.js   record di citazione</code></pre>
+    <h4>A cosa serve</h4>
+    <ul>
+      <li>cambiare endpoint = toccare solo <code>config.js</code> (riuso con altri endpoint SKG-IF)</li>
+      <li>ogni funzione ha un posto preciso: più facile trovare e correggere</li>
+      <li>card, liste, grafico scritti una volta e usati da tutte le pagine</li>
+    </ul>
+
+    <!-- ===================== LUCINDA ===================== -->
+    <h3 class="sezione">Lucinda: ruolo e modifiche</h3>
+
+    <h4>Modifiche a <code>lucinda.js</code></h4>
+    <ul>
+      <li>nuovo blocco <strong><code>#api &lt;url&gt;</code></strong>: Lucinda chiama l'URL (GET, JSON) scritto dopo #api in quel blocco del .hf, dopo aver riempito i segnaposto [[...]] -> tramite #api Lucinda chiama un'API REST che risponde in JSON; nei template attuali sono le API SKG-IF di OpenCitations (endpoint in config.js)</li>
+      <li><code>#api</code> nel blocco <code>main</code> = <strong>controllo del tipo</strong>: 200 = template giusto, altrimenti prova il successivo</li>
+      <li><code>#postprocess f(...)</code>: trasforma il JSON in tabella</li>
+      <li>segnaposto negli URL del file .hf (<code>[[skgif_api]]</code>, <code>[[id_base]]</code>) riempiti da <code>api_vars</code> → endpoint scritto solo in <code>config.js</code></li>
+      <li>cache delle risposte (<code>Lucinda.api_responses</code>): stessa URL = 1 sola richiesta, riusata anche dal JS</li>
+      <li>pagina costruita anche senza <code>#sparql</code> (prima restava su "Loading")</li>
+    </ul>
+
+    <h4>Esempio: profilo autore</h4>
+    <p><code>new_ra_browser.hf</code></p>
+<pre><code>#id main
+#url value=ra/{id}
+#api [[skgif_api]]/persons/[[id_base]]ra/[[id]]
+
+#id author_meta
+#api [[skgif_api]]/persons/[[id_base]]ra/[[id]]
+#postprocess post_skgif_person(id)
+
+#id author_works
+#api [[skgif_api]]/products?filter=contributions.by.local_identifier:[[id_base_enc]]ra%2F[[id]]&amp;page=1&amp;page_size=1
+#postprocess post_skgif_total()
+
+#id author_works_page
+#api [[skgif_api]]/products?filter=contributions.by.local_identifier:[[id_base_enc]]ra%2F[[id]]&amp;page=1&amp;page_size=10
+
+#id author_record
+#callfun api_author_record_skgif()</code></pre>
+
+    <p><code>new_ra_browser.html</code> (estratto)</p>
+<pre><code>&lt;!-- Lucinda: nome, ORCID, ID, numero di opere --&gt;
+&lt;h3 id="ra-id"&gt;[[Lucinda:skgif_text(author_meta.head)]]&lt;/h3&gt;
+&lt;span id="ra-orcid"&gt;[[Lucinda:ifcond(author_meta.orcid != null, skgif_orcid(author_meta.orcid), ...)]]&lt;/span&gt;
+&lt;span id="ra-ids"&gt;[[Lucinda:skgif_ids(author_meta.ids, author_meta.omid)]]&lt;/span&gt;
+&lt;h3 id="search-total-count"&gt;[[Lucinda:skgif_text(author_works.total)]]&lt;/h3&gt;
+
+&lt;!-- JS (#callfun api_author_record_skgif): contenitori vuoti --&gt;
+&lt;div id="ra-pubs-chart"&gt;&lt;/div&gt;               grafico per anno
+&lt;div id="ra-filters"&gt;&lt;/div&gt;                  filtri Type/Year/Role
+&lt;div id="ra-sort"&gt;...&lt;/div&gt;                  Sort by
+&lt;div id="search-results-container"&gt;&lt;/div&gt;    lista delle opere, pagine, Show</code></pre>
+
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Lucinda (.hf + view functions)</th><th>JS (#callfun)</th></tr>
+      <tr><td>scelta del template, metadati (nome, ORCID, ID), conteggio, prime 10 opere in cache</td>
+          <td>tutte le altre opere, lista a pagine, filtri, Sort by, ricerca nei titoli, grafico</td></tr>
+    </table></div>
+    <p>Perché: Lucinda costruisce la pagina <strong>una volta</strong>; liste che cambiano (pagine, filtri, ordinamento) e download lunghi restano al JS.</p>
+
+    <!-- ===================== PROPOSTA DI TESI ===================== -->
+    <h3 class="sezione">Proposta di tesi</h3>
+    <details style="margin:12px 0;">
+      <summary>Proposta di tesi resource-centric: LUCINDA per OpenCitations su SKG-IF</summary>
+      <div style="padding:12px;">
+    <ul>
+      <li><strong>resource-centric</strong> thesis = prodotto principale del lavoro è una risorsa e il testo diventa un paper che la presenta</li>
+      <li>La risorsa è un <strong>software:</strong> codice che interroga un'API, trasforma i dati e genera le pagine al momento</li>
+      <li><strong>(ATLAS guidelines per software punto 1) = Before creating new software from scratch, investigate existing similar solutions and explore opportunities to further develop or adapt them, promoting the reuse and enhancement of existing resources. = Riutilizzo</strong> del motore LUCINDA con le sue funzionalità (esteso con il blocco <code>#api</code>), l'architettura dei template (coppie hf/html, file js come addon), estensione del progetto dell'interfaccia precedente + riscrittura delle funzioni visto che è cambiata la fonte dei dati</li>
+      <li><strong>Pro:</strong> interfaccia utente costruita su SKG-IF</li>
+    </ul>
+
+    <h4>White paper: cosa va in ogni sezione obbligatoria</h4>
+    <p><strong>1) Frontespizio</strong></p>
+
+    <p><strong>2) Basic metadata</strong></p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Campo</th><th>Proposta</th></tr>
+      <tr><td>Resource type</td><td>Software (web application)</td></tr>
+      <tr><td>Title</td><td>Nome con parole chiave e acronimi sciolti secondo le general guidelines ATLAS, es. «LUCINDA for OpenCitations: a template-based browser for open citation data built on the Scholarly Knowledge Graph Interoperability Framework (SKG-IF)»</td></tr>
+      <tr><td>PID</td><td>DOI Zenodo, ottenuto al rilascio ???</td></tr>
+      <tr><td>URL</td><td>punti di accesso ai dati: Repository GitHub ed eventuale demo su GitHub Pages ? + eventuale Zenodo</td></tr>
+      <tr><td>Authors</td><td>nome, orcid, istituzione, ruolo, contatto delle persone coinvolte = chi e quale ordine</td></tr>
+      <tr><td>Version</td><td>?</td></tr>
+      <tr><td>Licenses</td><td>Codice ISC; documentazione CC BY 4.0 (proposta); dati OpenCitations CC0</td></tr>
+      <tr><td>Formats</td><td>HTML, CSS, JavaScript, template .hf; dati JSON-LD (SKG-IF)</td></tr>
+      <tr><td>Stato del lavoro sul readme</td><td>da specificare</td></tr>
+    </table></div>
+
+    <p><strong>3) Abstract</strong></p>
+    <p><strong>4) Introduction</strong></p>
+    <ul>
+      <li>perché la risorsa prodotta è uno strumento scientifico</li>
+      <li><strong>Ambito DH:</strong> comunicazione scientifica e Open Science; interoperabilità tra infrastrutture europee (SKG-IF, RDA, OPERAS)</li>
+      <li><strong>Progetto e contesto d'uso:</strong> inquadramento OpenCitations, come il prodotto scientifico ne fa parte, perché passare a SKG-IF; utenti (ricercatori, bibliometria, team OC), lavoro e attività di tirocinio</li>
+      <li><strong>Lavori precedenti e stato dell'arte:</strong> LUCINDA (Heibi), configurazione su OC di Pietro; altri browser di dati di citazione (OpenAlex, Semantic Scholar, Lens, OpenAIRE Explore, Scholia); browser Linked Data (LodView, Pubby); altre implementazioni SKG-IF (altri endpoints/implementors <a href="https://skg-if.github.io/api/docs/api-implementors.html">https://skg-if.github.io/api/docs/api-implementors.html</a>).</li>
+      <li><strong>Research questions:</strong> (1) Quali modifiche servono a LUCINDA, nato per SPARQL, per usare un'API REST che risponde in JSON-LD? (2) cosa manca in SKG-IF per un'interfaccia di questo tipo?</li>
+      <li>novità del contributo</li>
+    </ul>
+
+    <p><strong>5) Description</strong></p>
+    <p>Organizzata secondo le fasi ATLAS (Identify → Plan → Produce → Deposit):</p>
+    <ol style="padding-left:22px; margin-bottom:12px;">
+      <li><strong>Analisi</strong> del lavoro precedente</li>
+      <li><strong>Mapping 1-a-1</strong> SPARQL/REST → SKG-IF</li>
+      <li><strong>Architettura:</strong> blocco <code>#api</code>, controllo del tipo di risorsa senza ASK, separazione dati/vista; pattern usati (es: Adapter, cache, timeout e retry, caricamento progressivo...).</li>
+      <li><strong>Pagine realizzate:</strong> ricerche, schede autore/documento/rivista/organizzazione, record OCI.</li>
+      <li><strong>Limiti di SKG-IF e soluzioni dove possibili = individuazione dei casi senza equivalente (es. citation record, conteggi):</strong> niente ordinamento né filtri per data in skg-if, risposte tagliate soprattutto con carichi molto grandi...</li>
+      <li><strong>Valutazione tecnica (da fare):</strong> test documentati (punto 2 linee guida ATLAS per software), copertura rispetto al browser di Pietro, numero di chiamate e tempi</li>
+      <li><strong>Rilascio e deposito (da fare):</strong></li>
+      <li><strong>Considerazioni etiche e legali (da fare)</strong></li>
+    </ol>
+
+    <p><strong>6) Impact and reusability</strong></p>
+    <ul>
+      <li><strong>Impatto:</strong> accademico, istituzionale, pedagogico</li>
+      <li><strong>Riuso tecnico:</strong> uso con altri endpoint SKG-IF, entità non presenti in OC; <strong>legale:</strong> ISC + CC0; <strong>epistemico:</strong> scelte e limiti dichiarati nel codice e nella documentazione.</li>
+      <li><strong>Manutenzione dopo la tesi</strong> e conservazione</li>
+      <li><strong>Autovalutazione:</strong> tabella ATLAS + FAIR4RS + 17 metriche FAIR-IMPACT.</li>
+    </ul>
+
+    <p><strong>7) Conclusion (facoltativa)</strong></p>
+    <p><strong>8) References</strong></p>
+
+    <h4>Criteri di valutazione</h4>
+    <p><a href="https://dh-atlas.github.io/guidelines/general.html">ATLAS generali</a> e <a href="https://dh-atlas.github.io/guidelines/sw.html">ATLAS Software</a>, FAIR4RS Principles, RSMD Guidelines e le 17 metriche FAIR-IMPACT (Chue Hong et al. 2023). Eventuale criterio aggiuntivo: conformità a SKG-IF</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Raccomandazione</th><th>Proposta</th></tr>
+      <tr><td>Generali: facile da trovare</td><td>Titolo con parole chiave, README come landing page</td></tr>
+      <tr><td>Generali: facile da citare</td><td>Crediti CRediT e ORCID, istruzioni per citare, piano di manutenzione, licenze</td></tr>
+      <tr><td>Generali: facile da usare</td><td>Guida utente con esempi, documentazione <code>#api</code></td></tr>
+      <tr><td>SW 1. Riuso</td><td>Motore e progetto riusati, riscrittura funzioni</td></tr>
+      <tr><td>SW 2. Buone pratiche e test</td><td>Test documentati, dipendenze e requisiti; moduli</td></tr>
+      <tr><td>SW 3. Integrazione via API ed errori</td><td>gestione errori, interoperabilità formato dati...</td></tr>
+      <tr><td>SW 4. Standard aperti</td><td>HTML, CSS, JavaScript (ECMAScript), JSON-LD...</td></tr>
+      <tr><td>SW 5. Sviluppo aperto</td><td></td></tr>
+      <tr><td>SW 6. Rilascio</td><td></td></tr>
+      <tr><td>SW 7. Deposito</td><td></td></tr>
+    </table></div>
+
+    <h4>README di GitHub come landing page</h4>
+    <p>Il README attuale (fork) descrive ancora il vecchio LUCINDA basato su SPARQL («The OpenCitations RDF Resource Browser (v3.0)»). da aggiornare</p>
+
+    <h4>Lavoro dopo la migrazione 1-a-1</h4>
+    <p>La migrazione delle pagine è quasi completa (resta in stand-by la lista delle pubblicazioni nel profilo rivista e come gestire grafici e filtering/sorting negli altri casi)</p>
+    <p><strong>Codice</strong></p>
+    <ul>
+      <li>Fissare la versione di Chart.js</li>
+      <li>commenti</li>
+      <li>Dividere <code>js addon</code> in moduli?</li>
+      <li>scheda venue con pubblicazioni</li>
+      <li>sistemare le schede doc/organizzazione</li>
+    </ul>
+    <p><strong>Test e valutazione</strong></p>
+    <ul>
+      <li>Tabella di 15–25 casi di prova per tutte le pagine e i casi limite</li>
+      <li>Misure di tempi e numero di chiamate</li>
+      <li>Tabella di copertura e mappatura</li>
+    </ul>
+    <p><strong>Documentazione e rilascio</strong></p>
+    <ul>
+      <li>README nuovo, guida per chi usa il browser e guida per chi usa la configurazione</li>
+    </ul>
+      </div>
+    </details>
+
+  </div>
+</details>
 
       <!-- SETTIMANA 4 -->
 <details open>
@@ -1409,6 +1780,53 @@ if (l_callsparql.length === 0) {
 
     </main>
   </div>
+
+  <!-- Lightbox -->
+  <div id="lightbox">
+    <button class="lb-chiudi" title="Chiudi (Esc)">&times;</button>
+    <button class="lb-prec" title="Precedente (←)">&#8249;</button>
+    <img alt="">
+    <div class="lb-info"></div>
+    <button class="lb-succ" title="Successiva (→)">&#8250;</button>
+  </div>
+
+  <script>
+    (function () {
+      const lb = document.getElementById('lightbox');
+      const lbImg = lb.querySelector('img');
+      const lbInfo = lb.querySelector('.lb-info');
+      let gruppo = [], indice = 0;
+
+      function mostra() {
+        const img = gruppo[indice];
+        lbImg.src = img.src;
+        const etichetta = img.closest('.foto') ? img.closest('.foto').firstChild.textContent.trim() : '';
+        lbInfo.textContent = (indice + 1) + ' / ' + gruppo.length + (etichetta ? ' — ' + etichetta : '');
+      }
+      function apri(img) {
+        // scorre tra le immagini dello stesso giorno (stesso <details>)
+        const sezione = img.closest('details') || document;
+        gruppo = Array.from(sezione.querySelectorAll('.content img'));
+        indice = gruppo.indexOf(img);
+        mostra();
+        lb.classList.add('aperto');
+      }
+      function chiudi() { lb.classList.remove('aperto'); }
+      function sposta(d) { indice = (indice + d + gruppo.length) % gruppo.length; mostra(); }
+
+      document.querySelectorAll('.content img').forEach(img => img.addEventListener('click', () => apri(img)));
+      lb.querySelector('.lb-chiudi').addEventListener('click', chiudi);
+      lb.querySelector('.lb-prec').addEventListener('click', e => { e.stopPropagation(); sposta(-1); });
+      lb.querySelector('.lb-succ').addEventListener('click', e => { e.stopPropagation(); sposta(1); });
+      lb.addEventListener('click', e => { if (e.target === lb) chiudi(); });
+      document.addEventListener('keydown', e => {
+        if (!lb.classList.contains('aperto')) return;
+        if (e.key === 'Escape') chiudi();
+        if (e.key === 'ArrowLeft') sposta(-1);
+        if (e.key === 'ArrowRight') sposta(1);
+      });
+    })();
+  </script>
 
 </body>
 </html>
