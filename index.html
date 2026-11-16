@@ -249,22 +249,95 @@
     <main class="entries">
 
       <!-- SETTIMANA 7 -->
-<details>
+<details open>
   <summary>
     16/11/2026
   </summary>
   <div class="content">
 
+    <!-- ===================== USER TESTING ===================== -->
+    <h3 class="sezione">Recap 16/11 user testing</h3>
+    <ul>
+      <li>numero persone: 20 persone, 10 su mobile 10 su pc</li>
+      <li>chi sono le persone: laureandi, neolaureati, dottorandi, ricercatori, persone che durante gli anni universitari e/o per lavoro consultano bibliografia</li>
+      <li>durata sessione: circa 30 min per allegerire carico cognitivo dell'utente</li>
+      <li>una serie di 5/6 tasks indipendenti e agire su ciascun task indipendetemente</li>
+      <li>ultimo task piu complesso</li>
+      <li>lingua ita o en</li>
+      <li>durata dei singoli tasks: misurare quanto ci metto io e moltiplicare x N: se supera tempo massimo dichiarare task come fallito gravemente</li>
+      <li>SUS modulo scritto</li>
+      <li>domande aperte: rispondere oralmente</li>
+      <li>modalità sessione: videochiamata in cui registro tutto io ma dichiarare i limiti della modalità videochiamata (es: condizionamento dallamia presenza etc)</li>
+      <li>persona --> user story --> task</li>
+    </ul>
+    <h2>Proposta di task (da testare fattibilità con utente prova)</h2>
+    <p><strong>Persona</strong>: Giulia, laureanda in linguistica computazionale, sta lavorando alla stesura della sua tesi che a grandi linee tratta della word sense disambiguation. Compiti dal più facile al più complesso; ognuno con un solo obiettivo e una sola risposta; tutti partono dalla home tranne il 4 (chr continua il 3).</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Compito</th><th>Da cercare</th><th>Mio tempo (PC / telefono)</th></tr>
+      <tr><td>1. "Quante volte è stata citata la rassegna <em>Recent Trends In Word Sense Disambiguation</em>?"</td><td>DOI 10.24963/ijcai.2021/593</td><td></td></tr>
+      <tr><td>2. "Giulia ha letto <em>Random Walks For Knowledge-Based Word Sense Disambiguation</em>. In quale anno le opere del suo primo autore hanno ricevuto più citazioni?"</td><td>titolo <em>Random Walks For Knowledge-Based Word Sense Disambiguation</em></td><td></td></tr>
+      <tr><td>3. "Salva in un file BibTeX i lavori usciti nel 2018 che citano l'articolo su Babelfy."</td><td>DOI 10.1162/tacl_a_00179</td><td></td></tr>
+      <tr><td>4. "Giulia ora vuole tutti i capitoli di libro che citano lo stesso articolo, di qualunque anno. Quanti sono?"</td><td>(stessa pagina del compito 3)</td><td></td></tr>
+      <tr><td>5. "Qual è l'identificativo Crossref della casa editrice che ha pubblicato il primo lavoro di Jorge Vivaldi?"</td><td>ORCID 0000-0003-1491-8691</td><td></td></tr>
+      <tr><td>6. "Tra le opere che citano <em>Nasari</em> c'è <em>An Overview Of Word And Sense Similarity</em>. Quante opere sono citate da entrambi?"</td><td>DOI 10.1016/j.artint.2016.07.005</td><td></td></tr>
+    </table></div>
+
+    <h4>Tempo massimo = mio tempo × N</h4>
+    <ul>  
+      <li>Lewis (1982): uno di quattro modi per fissare il limite è prendere il tempo dell'esperto o il più veloce e porre la condizione inaccettabile a 1,5 volte "(or other multiple)".</li>
+      <li><a href="https://measuringu.com/papers/hcii2005task_times.pdf" target="_blank">Sauro e Kindlund (2005)</a>: su 36 casi, rapporto tra il limite ricavato dagli utenti soddisfatti e il tempo dell'esperto da 1,1 a 7,6, media 3,2;il tempo dell'esperto è un "a rough guide".</li>
+      <li><a href="https://measuringu.com/task-times/" target="_blank">Sauro (2011, MeasuringU)</a>: 1,5 "(or another multiple)"; "It's unclear what a good multiple should be"</li>
+    </ul>
+    <p>Come mi cronometro: parto quando ho letto il compito e sono sulla pagina di partenza, mi fermo quando ho la risposta o il file salvato. L'attesa dell'API è inclusa (anche i partecipanti). </p>
+
+    <h4>Scaletta della sessione (circa 30 min)</h4>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Fase</th><th>Durata</th><th>Contenuto</th></tr>
+      <tr><td>1. Domande iniziali</td><td></td><td>Hai mai usato questa piattaforma? Ci sono piattaforme simili che usi di solito? Quali?</td></tr>
+      <tr><td>2. Esplorazione libera</td><td>max 2 min</td><td>navigazione senza compiti</td></tr>
+      <tr><td>3. Compiti</td><td></td><td>i 6 compiti della tabella, uno alla volta, ciascuno con il suo tempo massimo</td></tr>
+      <tr><td>4. SUS</td><td></td><td>modulo scritto, 10 domande</td></tr>
+      <tr><td>5. Domande aperte finali</td><td></td><td>a voce, 2 positive e 2 negative:
+        <ul>
+          <li>(+) Quali funzioni ti sono state più utili?</li>
+          <li>(+) Quanto ti ha aiutato la piattaforma a svolgere i compiti?</li>
+          <li>(−) Cosa ti ha confuso o rallentato?</li>
+          <li>(−) Cosa manca o cosa aggiungeresti?</li>
+        </ul></td></tr>
+    </table></div>
+
+    <h2>Q
+    </h2>
+    <ul>
+      <li>github pages</li>
+      <li>modulo della privacy</li>
+      <li>materiali da mandare prima: istruzioni della sessione e guidelines</li>
+    </ul>
     <!-- ===================== PROPOSTA: MISURE DEI TEMPI ===================== -->
     <h3 class="sezione">Misure dei tempi di caricamento – proposta</h3>
-    <p>Propongo di misurare con uno script automatico quanto l'API SKG-IF di OpenCitations fa aspettare l'utente e quanto spesso non risponde. Le misure servono a capire fin dove l'API permette un'interfaccia usabile, perché l'interfaccia è costruita su questa API: i limiti emersi durante lo sviluppo hanno portato a scelte lato codice (pagine che non arrivano richieste di nuovo in pezzi da 10, poi da 1) e lato design (soglie e bottone "Load all").</p>
+    <ul>
+      <li><strong>Idea</strong>: uno script automatico misura quanto l'API SKG-IF fa aspettare l'utente e quanto spesso non risponde.</li>
+      <li><strong>Cosa misura</strong>: una ventina di pagine reali (scheda documento, profilo autore, scheda organizzazione, profilo rivista, record di citazione, 4 ricerche), con liste piccole, medie e grandi:
+        <ul>
+          <li>secondi fino a pagina mostrata, lista completa, scaricamento grafici;</li>
+          <li>chiamate all'API, errori, risposte tagliate, esito (ok / incompleta / timeout);</li>
+          <li>tempo del codice dell'interfaccia contro tempo di attesa dell'API.</li>
+        </ul></li>
+      <li><strong>Script</strong>: JavaScript nel browser, apre le pagine in Chrome; cache disattivata; pagine in ordine casuale; più giorni e orari (da confermare con una prova pilota).</li>
+      <li><strong>Serve</strong>: quanto effettivamente servono soglie (250 etc) e altre misure precauzionali adottate (50-10-1), lavorare e riflettere sui limiti</li>
+      <li><strong>Analisi dei dati</strong>: mediana e SIQR (tempi asimmetrici, Jain 1991), percentuali di esiti (es.  su 42 prove, quante sono finite "ok", quante "incompleta")</li>
+    </ul>
+    <details style="margin:12px 0;">
+      <summary>Notes</summary>
+      <div style="padding:12px;">
+    <p>misurare con uno script automatico il tempo delle attese dell'api. Le misure servono a capire fin dove l'API permette un'interfaccia usabile, perché l'interfaccia è costruita su questa API: i limiti emersi durante lo sviluppo hanno portato a scelte lato codice (pagine che non arrivano richieste di nuovo in pezzi da 10, poi da 1) e lato design (soglie e bottone "Load all").</p>
 
     <h4>Perché misurare</h4>
     <p>La domanda è: fino a che punto l'API SKG-IF di OpenCitations permette di costruire un'interfaccia usabile? Le misure rispondono alla parte tecnica di questa domanda; l'altra parte della risposta viene dal test con utenti.</p>
-    <p>Il punto chiave: <strong>i tempi dipendono quasi solo dall'API e dalla rete, non dal codice dell'interfaccia.</strong> L'interfaccia aspetta le risposte e le mostra (verificato: vedi "Tempo del codice e tempo di attesa"). Quindi le misure mostrano come si comporta l'API per chi ci costruisce sopra un'applicazione. È lo stesso punto di vista di Bermbach e Wittern (2020), che misurano le API web "as perceived by applications", trattando l'API come una scatola chiusa.</p>
+    <p>Il punto chiave: <strong>i tempi dipendono quasi solo dall'API e dalla rete, non dal codice dell'interfaccia.</strong>. Quindi le misure mostrano come si comporta l'API per chi ci costruisce sopra un'applicazione. È lo stesso punto di vista di Bermbach e Wittern (2020), che misurano le API web "as perceived by applications", trattando l'API come una scatola chiusa.</p>
     <div class="tbl-wrap"><table class="tbl">
       <tr><th>Sotto-domanda</th><th>Cosa dicono le misure</th></tr>
-      <tr><td>SQ3. Quanto deve aspettare l'utente?</td><td>tempi di ogni pagina; come cresce l'attesa quando aumentano i dati (si misurano pagine dello stesso tipo con liste di dimensioni diverse, da 6 a 3.865 elementi, e si mette in grafico il tempo rispetto al numero di elementi)</td></tr>
+      <tr><td>SQ3. Quanto deve aspettare l'utente?</td><td>tempi di ogni pagina</td></tr>
       <tr><td>SQ4. Quanto è affidabile l'API?</td><td>quante volte non risponde, risponde con errore o taglia i dati (errore: il server dichiara un problema, per esempio 500, 503 o 429 "troppe richieste"; dati tagliati: il server risponde "OK" ma la risposta è incompleta, e l'interfaccia se ne accorge solo leggendola e la richiede in pezzi più piccoli)</td></tr>
       <tr><td>SQ7. Le scelte fatte durante lo sviluppo servono?</td><td>se la soglia con "Load all" e i nuovi tentativi (pagine da 50, poi 10, poi 1) sono necessari</td></tr>
     </table></div>
@@ -289,10 +362,10 @@
       <li>nel record di citazione, <strong>i due grafici per anno</strong>.</li>
     </ul>
     <p>Insieme al tempo si contano le chiamate all'API (spiegano i tempi), le risposte di errore, le richieste senza risposta e le pagine richieste di nuovo in pezzi più piccoli. Ogni misura ha un esito: ok, incompleta (arrivata ma con dati mancanti) o timeout (non arrivata entro il limite) (i limiti di tempo sono due, entrambi scelti da noi: quello di una singola richiesta, fissato durante lo sviluppo nel codice dell'interfaccia, 35 s per una pagina da 50, 15 s da 10, 10 s per un elemento, oltre i quali la richiesta è rifatta in pezzi più piccoli; e quello di una prova intera, 15 minuti, fissato nello strumento di misura).</p>
-    <p>Un editore con milioni di pubblicazioni non è misurabile: Elsevier ne ha 17.564.935 (<code>ra/0610116009</code>), cioè circa 350.000 chiamate da 50. Questo è un risultato da riportare, non un caso da misurare.</p>
+    <p>Un editore con milioni di pubblicazioni non è misurabile: Elsevier ne ha 17.564.935 (<code>ra/0610116009</code>), cioè circa 350.000 chiamate da 50</p>
 
     <h4>Come si misura</h4>
-    <p>Le misure sono fatte da uno script automatico (<code>tools/misure.html</code> + <code>timing.js</code>), che apre ogni pagina in Chrome, aspetta che sia caricata e registra i tempi (lo script misura la copia del sito sul computer di chi misura, cioè la cartella del repository aperta con un piccolo server locale, mentre le richieste vanno all'API vera di OpenCitations; per questo nelle note di ogni sessione si annota la versione del codice misurata, il commit). Lo script e i dati sono nel repository, quindi chiunque può ripetere l'esperimento.</p>
+    <p>Le misure sono fatte da uno script automatico (<code>tools/misure.html</code> + <code>timing.js</code>), che apre ogni pagina in Chrome, aspetta che sia caricata e registra i tempi. Lo script e i dati sono nel repository, quindi chiunque può ripetere l'esperimento.</p>
     <div class="tbl-wrap"><table class="tbl">
       <tr><th>Scelta</th><th>Perché</th><th>Riferimento</th></tr>
       <tr><td>Cache del server sempre disattivata (<code>preview=true</code>), cache del browser disattivata</td><td>ogni prova misura la risposta reale dell'API, come per il primo visitatore</td><td>suggerimento del professore</td></tr>
@@ -322,16 +395,9 @@
     </table></div>
     <p>Lo script R calcola per ogni pagina la quota di tempo del codice (<code>code_share</code>) e disegna un grafico in cui ogni barra è divisa in tempo del codice e tempo di attesa.</p>
     <p>Limiti: i blocchi sotto i 50 ms non vengono contati, quindi il tempo del codice è un po' sottostimato; la memoria si misura solo in Chrome.</p>
-    <p>Prima prova (12/11/2026, una prova per pagina, fuori dalle sessioni di misura):</p>
-    <div class="tbl-wrap"><table class="tbl">
-      <tr><th>Pagina</th><th>Durata totale</th><th>Lavoro del codice</th><th>Blocco più lungo</th><th>Memoria massima</th></tr>
-      <tr><td>Scheda documento, 3.865 citazioni</td><td>283 s</td><td>0,7 s</td><td>0,47 s</td><td>28,6 MB</td></tr>
-      <tr><td>Scheda organizzazione, 3.661 pubblicazioni</td><td>147 s</td><td>1,0 s</td><td>0,76 s</td><td>14,3 MB</td></tr>
-    </table></div>
-    <p>La stessa prova ha trovato un punto lento nel codice: l'ordinamento per titolo di 3.661 pubblicazioni richiedeva 334 ms. Dopo la correzione richiede 16 ms, con lo stesso ordine dei risultati.</p>
 
     <h4>Quante volte</h4>
-    <p>Proposta: 7 giorni, 2 sessioni al giorno (mattina e sera), 3 giri per sessione, cioè 42 prove per pagina. Il numero va confermato con una sessione pilota.</p>
+    <p>7 giorni, 2 sessioni al giorno (mattina e sera), 3 giri per sessione, cioè 42 prove per pagina. Il numero va confermato con una sessione pilota.</p>
     <p>Nessuna delle fonti fissa un numero di ripetizioni. Papadopoulos et al. (2021, P1) chiedono di sceglierlo in base a quanto variano i risultati e di dichiararlo. Jain (1991, cap. 13) dà una formula per il numero di prove n necessario a stimare la media con precisione ±r% e confidenza 95% (z = 1,96), dove s è la deviazione standard osservata:</p>
     <p style="text-align:center; font-size:1.1rem;"><em>n</em> = ( 100 · <em>z</em> · <em>s</em> / ( <em>r</em> · <em>x̄</em> ) )²</p>
     <p>Procedura:</p>
@@ -360,17 +426,6 @@
       <tr><td>Tempo del codice contro tempo di attesa, per pagina</td><td>che i tempi dipendono dall'API e non dall'interfaccia</td><td>sì</td></tr>
     </table></div>
 
-    <h4>Carico sul server e domande per il professore</h4>
-    <p>Il carico è quello di un utente solo (una pagina alla volta, al massimo 3-6 richieste insieme, una pausa tra le prove), ma con la cache disattivata ogni richiesta fa lavorare davvero il server. Nei test non è arrivato nessun errore "too many requests" (429).</p>
-    <p>Stima grezza, da confermare con la sessione pilota: circa 1.300 chiamate per giro, 4.000 per sessione, 55.000 in una settimana. La maggior parte viene dai due autori grandi (298 e 115 opere), perché per le citazioni ricevute serve una chiamata per opera.</p>
-    <h3>Q</h3>
-    <ul>
-      <li>Il carico stimato è accettabile per l'API di OpenCitations? Ci sono orari da evitare?</li>
-      <li>Va bene la cache disattivata in tutte le prove?</li>
-      <li>Va bene il numero di sessioni proposto (7 giorni × 2 sessioni × 3 giri), da confermare con il pilota?</li>
-      <li>Aggiungere un editore a 6 cifre (Copernicus, 132.837 pubblicazioni, circa 2.700 chiamate e un'ora per scaricarlo) da misurare a parte 1-3 volte, per mostrare il limite?</li>
-    </ul>
-
     <h4>Fonti</h4>
     <ul>
       <li>Abedi, A., &amp; Brecht, T. (2017). Conducting repeatable experiments in highly variable cloud computing environments. In <em>Proceedings of the ACM/SPEC International Conference on Performance Engineering</em> (pp. 287–292). ACM. https://doi.org/10.1145/3030207.3030229</li>
@@ -380,9 +435,21 @@
       <li>Papadopoulos, A. V., Versluis, L., Bauer, A., Herbst, N., von Kistowski, J., Ali-Eldin, A., Abad, C. L., Amaral, J. N., Tůma, P., &amp; Iosup, A. (2021). Methodological principles for reproducible performance evaluation in cloud computing. <em>IEEE Transactions on Software Engineering, 47</em>(8), 1528–1543. https://doi.org/10.1109/TSE.2019.2927908</li>
       <li>Standard SKG-IF, API: https://skg-if.github.io/api/</li>
     </ul>
+      </div>
+    </details>
 
     <!-- ===================== RIUSABILITÀ ===================== -->
     <h3 class="sezione">Riusabilità</h3>
+    <ul>
+      <li><strong>Domanda</strong>: LUCINDA, configurata per OpenCitations, funziona con un altro endpoint SKG-IF?</li>
+      <li><strong>Prova</strong>: su una copia del sito, con OpenAIRE, cambiando solo 2 righe di <code>config.js</code>: indirizzo dell'API (<code>SKGIF_API</code>) e inizio degli identificativi (<code>SKGIF_ID_BASE</code>).</li>
+      <li><strong>Ricerche</strong>: funzionano per le risorse in comune (documenti, autori, organizzazioni); quella delle riviste no, perché OpenAIRE non ha venues.</li>
+      <li><strong>Schede</strong>: non si aprono ("No template is suitable"). L'indirizzo della scheda contiene l'OMID (<code>br/…</code>, <code>ra/…</code>) e LUCINDA sceglie il template dal prefisso; gli OMID esistono solo in OpenCitations, gli altri endpoint hanno identificativi propri, quindi nessun template li riconosce.</li>
+      <li><strong>Soluzione</strong>: il tipo nell'indirizzo della scheda (<code>value=product:{id}</code>, <code>person:</code>, <code>organisation:</code>, <code>venue:</code>), preso dal campo <code>entity_type</code> dei dati SKG-IF per far aprire le schede; quanto si riempiono dipende dai filtri e dai dati dell'endpoint.</li>
+    </ul>
+    <details style="margin:12px 0;">
+      <summary>Notes</summary>
+      <div style="padding:12px;">
     <p>Domanda: Lucinda, configurato per OpenCitations, funziona anche con un altro endpoint SKG-IF? Prova fatta su copie del sito fuori dal repository (il progetto non è stato toccato), con gli endpoint elencati nella pagina ufficiale degli implementatori (https://skg-if.github.io/api/docs/api-implementors.html).</p>
 
     <h4>Gli endpoint SKG-IF disponibili</h4>
@@ -433,7 +500,6 @@
       <li>logo, favicon, colori, testi della home;</li>
       <li>messaggio d'errore "The OpenCitations API is temporarily unable to answer" (<code>core.js</code>);</li>
       <li>etichetta "omid:" davanti agli identificativi;</li>
-      <li>record di citazione (OCI) e grafici dall'API Index: esistono solo in OpenCitations.</li>
     </ul>
     <p>Sono personalizzazioni normali (la cartella è <code>example/oc</code>, cioè la configurazione per OpenCitations), non problemi di struttura.</p>
 
@@ -443,14 +509,11 @@
       <li>Schede: legate agli OMID. Con il tipo nell'indirizzo si aprono su qualsiasi endpoint; cambierebbero però gli indirizzi delle schede anche per OpenCitations (salvo tenere <code>br/</code> e <code>ra/</code> come alias).</li>
       <li>Limiti degli endpoint, non risolvibili da Lucinda: CORS, entità e filtri mancanti, filtri ignorati, dati poveri.</li>
     </ul>
-    <h3>Q</h3>
-    <ul>
-      <li>La riusabilità con altri endpoint SKG-IF è un obiettivo della tesi o basta segnalarla come risultato?</li>
-      <li>Se è un obiettivo: va bene il tipo nell'indirizzo delle schede (<code>value=person:...</code>), tenendo <code>br/</code> e <code>ra/</code> per OpenCitations?</li>
-      <li>Serve un controllo dei filtri supportati da ogni endpoint, per evitare casi come quello di OpenAIRE?</li>
-    </ul>
+ 
 
     <h3 class="sezione">Interfaccia</h3>
+      </div>
+    </details>
     <h3>Q</h3>
     <ul>
       <li>Piè di pagina: oggi solo "2025 Lucinda v2.0". Aggiungere pochi link testuali come nel sito OpenCitations (es. OpenCitations · SKG-IF API · Documentation · Source code)? Quali?</li>
@@ -460,7 +523,7 @@
 </details>
 
       <!-- USER TESTING -->
-<details open>
+<details>
   <summary>
     14/11 (user testing)
   </summary>
