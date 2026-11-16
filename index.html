@@ -201,6 +201,15 @@
     .foto img { max-width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; }
     .foto:has(img) { border: none; padding: 0; }
 
+    /* Domande con spazio per le risposte (salvate nel browser) */
+    .qa { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 8px 16px; align-items: start; margin: 10px 0; }
+    .qa label { font-size: 0.9rem; font-weight: 600; padding-top: 6px; }
+    .qa textarea { width: 100%; box-sizing: border-box; min-height: 64px; padding: 8px 10px; font: inherit; font-size: 0.88rem; border: 1px solid var(--border); border-radius: 6px; background: #fff; color: var(--text); resize: vertical; }
+    .qa textarea:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+    .qa-nota { font-size: 0.8rem; color: var(--muted); }
+    .qa-copia { margin: 6px 0 14px; padding: 6px 12px; border: 1px solid var(--accent); border-radius: 6px; background: #fff; color: var(--accent); font: inherit; font-size: 0.85rem; cursor: pointer; }
+    @media (max-width: 700px) { .qa { grid-template-columns: 1fr; } .qa label { padding-top: 0; } }
+
     /* Lightbox: clic su un'immagine per ingrandirla e scorrere le altre */
     .content img { cursor: zoom-in; }
     #lightbox { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.88); align-items: center; justify-content: center; flex-direction: column; }
@@ -239,8 +248,635 @@
 
     <main class="entries">
 
-      <!-- SETTIMANA 6 -->
+      <!-- SETTIMANA 7 -->
+<details>
+  <summary>
+    16/11/2026
+  </summary>
+  <div class="content">
+
+    <!-- ===================== PROPOSTA: MISURE DEI TEMPI ===================== -->
+    <h3 class="sezione">Misure dei tempi di caricamento – proposta</h3>
+    <p>Propongo di misurare con uno script automatico quanto l'API SKG-IF di OpenCitations fa aspettare l'utente e quanto spesso non risponde. Le misure servono a capire fin dove l'API permette un'interfaccia usabile, perché l'interfaccia è costruita su questa API: i limiti emersi durante lo sviluppo hanno portato a scelte lato codice (pagine che non arrivano richieste di nuovo in pezzi da 10, poi da 1) e lato design (soglie e bottone "Load all").</p>
+
+    <h4>Perché misurare</h4>
+    <p>La domanda è: fino a che punto l'API SKG-IF di OpenCitations permette di costruire un'interfaccia usabile? Le misure rispondono alla parte tecnica di questa domanda; l'altra parte della risposta viene dal test con utenti.</p>
+    <p>Il punto chiave: <strong>i tempi dipendono quasi solo dall'API e dalla rete, non dal codice dell'interfaccia.</strong> L'interfaccia aspetta le risposte e le mostra (verificato: vedi "Tempo del codice e tempo di attesa"). Quindi le misure mostrano come si comporta l'API per chi ci costruisce sopra un'applicazione. È lo stesso punto di vista di Bermbach e Wittern (2020), che misurano le API web "as perceived by applications", trattando l'API come una scatola chiusa.</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Sotto-domanda</th><th>Cosa dicono le misure</th></tr>
+      <tr><td>SQ3. Quanto deve aspettare l'utente?</td><td>tempi di ogni pagina; come cresce l'attesa quando aumentano i dati (si misurano pagine dello stesso tipo con liste di dimensioni diverse, da 6 a 3.865 elementi, e si mette in grafico il tempo rispetto al numero di elementi)</td></tr>
+      <tr><td>SQ4. Quanto è affidabile l'API?</td><td>quante volte non risponde, risponde con errore o taglia i dati (errore: il server dichiara un problema, per esempio 500, 503 o 429 "troppe richieste"; dati tagliati: il server risponde "OK" ma la risposta è incompleta, e l'interfaccia se ne accorge solo leggendola e la richiede in pezzi più piccoli)</td></tr>
+      <tr><td>SQ7. Le scelte fatte durante lo sviluppo servono?</td><td>se la soglia con "Load all" e i nuovi tentativi (pagine da 50, poi 10, poi 1) sono necessari</td></tr>
+    </table></div>
+    <p>I limiti che emergono vengono poi attribuiti allo standard SKG-IF (per esempio: niente ordinamento né filtro per data, quindi per un grafico per anno bisogna scaricare tutta la lista) oppure all'API di OpenCitations (velocità, timeout, dati), oppure all'interfaccia (ogni limite si confronta con la documentazione ufficiale dello standard: se lo standard non prevede la funzione, il limite è di SKG-IF; se la prevede ma l'API di OpenCitations non la realizza, o risponde lenta o con errori, è di OpenCitations; se il tempo va nel codice, vedi "Tempo del codice e tempo di attesa", o gli utenti non capiscono la pagina, test con utenti, è dell'interfaccia). Da qui nascono le raccomandazioni finali del white paper.</p>
+
+    <h4>Cosa si misura</h4>
+    <p>Si misurano 21 pagine reali del sito, scelte piccole, medie e grandi per vedere come cresce l'attesa con la quantità di dati.</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Pagina</th><th>Casi</th><th>Note</th></tr>
+      <tr><td>Scheda documento</td><td>6 documenti, da 24 a 3.865 citazioni (per ognuno si misurano sia le citazioni sia i riferimenti, da 13 a 334)</td><td>liste sotto e sopra la soglia automatica di 250</td></tr>
+      <tr><td>Profilo autore</td><td>4 autori: 6, 18, 115 e 298 opere</td><td>si scaricano sempre tutte le opere, poi le citazioni ricevute</td></tr>
+      <tr><td>Scheda organizzazione</td><td>4 editori: da 61 a 3.661 pubblicazioni (gli editori con milioni di pubblicazioni non sono scaricabili: vedi sotto)</td><td>liste sotto e sopra la soglia di 500</td></tr>
+      <tr><td>Profilo rivista</td><td>Scientometrics</td><td>solo metadati</td></tr>
+      <tr><td>Record di citazione</td><td>2 citazioni: una piccola, una con un documento citato 3.865 volte</td><td>8 chiamate SKG-IF e 2 grafici dall'API Index</td></tr>
+      <tr><td>Ricerche</td><td>documenti, autori, riviste, organizzazioni</td><td>prima pagina dei risultati</td></tr>
+    </table></div>
+    <p>Per ogni pagina si registrano i secondi fino a:</p>
+    <ul>
+      <li><strong>pagina mostrata</strong> (o prima pagina dei risultati, per le ricerche);</li>
+      <li><strong>lista completa</strong> di citazioni, riferimenti, pubblicazioni o opere: serve per grafico, filtri e ordinamento;</li>
+      <li>nel profilo autore, <strong>numero di citazioni ricevute</strong> (una chiamata per opera) e <strong>grafico delle citazioni per anno</strong>;</li>
+      <li>nel record di citazione, <strong>i due grafici per anno</strong>.</li>
+    </ul>
+    <p>Insieme al tempo si contano le chiamate all'API (spiegano i tempi), le risposte di errore, le richieste senza risposta e le pagine richieste di nuovo in pezzi più piccoli. Ogni misura ha un esito: ok, incompleta (arrivata ma con dati mancanti) o timeout (non arrivata entro il limite) (i limiti di tempo sono due, entrambi scelti da noi: quello di una singola richiesta, fissato durante lo sviluppo nel codice dell'interfaccia, 35 s per una pagina da 50, 15 s da 10, 10 s per un elemento, oltre i quali la richiesta è rifatta in pezzi più piccoli; e quello di una prova intera, 15 minuti, fissato nello strumento di misura).</p>
+    <p>Un editore con milioni di pubblicazioni non è misurabile: Elsevier ne ha 17.564.935 (<code>ra/0610116009</code>), cioè circa 350.000 chiamate da 50. Questo è un risultato da riportare, non un caso da misurare.</p>
+
+    <h4>Come si misura</h4>
+    <p>Le misure sono fatte da uno script automatico (<code>tools/misure.html</code> + <code>timing.js</code>), che apre ogni pagina in Chrome, aspetta che sia caricata e registra i tempi (lo script misura la copia del sito sul computer di chi misura, cioè la cartella del repository aperta con un piccolo server locale, mentre le richieste vanno all'API vera di OpenCitations; per questo nelle note di ogni sessione si annota la versione del codice misurata, il commit). Lo script e i dati sono nel repository, quindi chiunque può ripetere l'esperimento.</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Scelta</th><th>Perché</th><th>Riferimento</th></tr>
+      <tr><td>Cache del server sempre disattivata (<code>preview=true</code>), cache del browser disattivata</td><td>ogni prova misura la risposta reale dell'API, come per il primo visitatore</td><td>suggerimento del professore</td></tr>
+      <tr><td>Prove ripetute, in più giorni e orari</td><td>la velocità di un'API cambia molto nel tempo</td><td>Bermbach e Wittern (2020), sez. 5; Papadopoulos et al. (2021), P1</td></tr>
+      <tr><td>Ogni sessione fatta di giri; in ogni giro tutte le pagine una volta, in ordine casuale</td><td>le prove consecutive dello stesso caso non sono ripetibili: un momento lento colpirebbe un caso solo</td><td>Abedi e Brecht (2017)</td></tr>
+      <tr><td>Casi piccoli, medi e grandi</td><td>coprire situazioni diverse</td><td>Papadopoulos et al. (2021), P2</td></tr>
+      <tr><td>Registrati automaticamente: browser, data, ora; annotati a mano: computer e connessione</td><td>descrivere l'ambiente della misura</td><td>Papadopoulos et al. (2021), P3</td></tr>
+      <tr><td>Script e CSV pubblicati nel repository</td><td>rendere ripetibile l'esperimento</td><td>Papadopoulos et al. (2021), P4</td></tr>
+      <tr><td>Unità sempre dichiarate (secondi, numero di chiamate)</td><td></td><td>Papadopoulos et al. (2021), P7</td></tr>
+    </table></div>
+    <p>Altre regole operative:</p>
+    <ul>
+      <li>sopra le soglie (250 per i documenti, 500 per le organizzazioni) lo script preme da solo "Load all" e misura dal clic;</li>
+      <li>ogni prova ha un limite di 15 minuti, oltre il quale è registrata come timeout (scelta mia, ben sopra il caso più lento osservato);</li>
+      <li>durante una sessione il computer resta fermo con la pagina in primo piano, perché Chrome rallenta le schede nascoste; le prove con la scheda nascosta vengono segnalate e scartate;</li>
+      <li>il costo in denaro (P8 di Papadopoulos et al.) non si applica: l'API è gratuita.</li>
+    </ul>
+
+    <h4>Tempo del codice e tempo di attesa</h4>
+    <p>Per verificare (non solo affermare) che i tempi dipendono dall'API e non dall'interfaccia, ogni misura registra anche il lavoro della pagina stessa. Lo fa il browser con la Long Tasks API (standard W3C), che segnala ogni momento in cui il codice tiene occupata la pagina per più di 50 ms. Nel CSV ci sono quattro colonne nuove:</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Colonna</th><th>Cosa misura</th></tr>
+      <tr><td><code>busy_ms</code></td><td>tempo in cui il codice dell'interfaccia ha tenuto occupata la pagina; il resto del tempo misurato è attesa dell'API</td></tr>
+      <tr><td><code>longest_task_ms</code></td><td>il blocco più lungo: per quanto, al massimo, la pagina non ha risposto ai clic</td></tr>
+      <tr><td><code>heap_peak_mb</code></td><td>memoria massima usata dalla pagina (solo in Chrome)</td></tr>
+      <tr><td><code>cut_responses</code></td><td>risposte arrivate con "OK" ma con i dati incompleti (risposta tagliata dal server)</td></tr>
+    </table></div>
+    <p>Lo script R calcola per ogni pagina la quota di tempo del codice (<code>code_share</code>) e disegna un grafico in cui ogni barra è divisa in tempo del codice e tempo di attesa.</p>
+    <p>Limiti: i blocchi sotto i 50 ms non vengono contati, quindi il tempo del codice è un po' sottostimato; la memoria si misura solo in Chrome.</p>
+    <p>Prima prova (12/11/2026, una prova per pagina, fuori dalle sessioni di misura):</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Pagina</th><th>Durata totale</th><th>Lavoro del codice</th><th>Blocco più lungo</th><th>Memoria massima</th></tr>
+      <tr><td>Scheda documento, 3.865 citazioni</td><td>283 s</td><td>0,7 s</td><td>0,47 s</td><td>28,6 MB</td></tr>
+      <tr><td>Scheda organizzazione, 3.661 pubblicazioni</td><td>147 s</td><td>1,0 s</td><td>0,76 s</td><td>14,3 MB</td></tr>
+    </table></div>
+    <p>La stessa prova ha trovato un punto lento nel codice: l'ordinamento per titolo di 3.661 pubblicazioni richiedeva 334 ms. Dopo la correzione richiede 16 ms, con lo stesso ordine dei risultati.</p>
+
+    <h4>Quante volte</h4>
+    <p>Proposta: 7 giorni, 2 sessioni al giorno (mattina e sera), 3 giri per sessione, cioè 42 prove per pagina. Il numero va confermato con una sessione pilota.</p>
+    <p>Nessuna delle fonti fissa un numero di ripetizioni. Papadopoulos et al. (2021, P1) chiedono di sceglierlo in base a quanto variano i risultati e di dichiararlo. Jain (1991, cap. 13) dà una formula per il numero di prove n necessario a stimare la media con precisione ±r% e confidenza 95% (z = 1,96), dove s è la deviazione standard osservata:</p>
+    <p style="text-align:center; font-size:1.1rem;"><em>n</em> = ( 100 · <em>z</em> · <em>s</em> / ( <em>r</em> · <em>x̄</em> ) )²</p>
+    <p>Procedura:</p>
+    <ol>
+      <li>sessione pilota con tutte le pagine e 3 giri: dice quanto dura una sessione e quanto variano i tempi;</li>
+      <li>lo script R calcola n per ogni pagina con r = 10%;</li>
+      <li>si fissano sessioni e giorni in modo da arrivarci, e si dichiara la scelta nella tesi.</li>
+    </ol>
+    <p>Sette giorni coprono giorni feriali e weekend; due orari permettono di vedere se l'ora conta. Bermbach e Wittern (2020) mostrano che i tempi di un'API possono variare di circa 10 volte nel tempo.</p>
+
+    <h4>Analisi in R</h4>
+    <p>Alla fine si scarica un CSV (una riga per misura, formato pronto per R) e lo script <code>tools/analysis.R</code> calcola le statistiche e disegna i grafici.</p>
+    <p>I tempi sono asimmetrici: quasi tutte le prove sono veloci, poche sono molto lente. Per questo si usano la <strong>mediana</strong> come valore centrale e lo <strong>scarto semi-interquartile (SIQR)</strong> come dispersione, come indica Jain (1991, cap. 12) per le distribuzioni asimmetriche. Per ogni pagina e misura:</p>
+    <ul>
+      <li>numero di prove valide, mediana, primo e terzo quartile, IQR e SIQR, 10° e 90° percentile, minimo e massimo;</li>
+      <li>media e deviazione standard, solo per la formula di Jain;</li>
+      <li>percentuale di prove ok, incomplete e in timeout, e totale degli errori dell'API.</li>
+    </ul>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Grafico</th><th>Cosa mostra</th><th>Nella tesi</th></tr>
+      <tr><td>Box plot dei tempi per pagina, con linee a 1 s e 10 s (Nielsen, 1993)</td><td>quanto si aspetta e quanto varia</td><td>sì</td></tr>
+      <tr><td>Tempo rispetto alla dimensione della lista (mediana e IQR)</td><td>più dati = più attesa; perché la soglia con "Load all"</td><td>sì</td></tr>
+      <tr><td>Esiti ok, incompleta, timeout per pagina</td><td>affidabilità dell'API</td><td>sì</td></tr>
+      <tr><td>Mediana di ogni sessione nel tempo, tempi per ora del giorno</td><td>se la velocità cambia tra giorni e orari</td><td>se mostra qualcosa</td></tr>
+      <tr><td>Chiamate rispetto alla dimensione della lista</td><td>perché i tempi crescono</td><td>facoltativo</td></tr>
+      <tr><td>Tempo del codice contro tempo di attesa, per pagina</td><td>che i tempi dipendono dall'API e non dall'interfaccia</td><td>sì</td></tr>
+    </table></div>
+
+    <h4>Carico sul server e domande per il professore</h4>
+    <p>Il carico è quello di un utente solo (una pagina alla volta, al massimo 3-6 richieste insieme, una pausa tra le prove), ma con la cache disattivata ogni richiesta fa lavorare davvero il server. Nei test non è arrivato nessun errore "too many requests" (429).</p>
+    <p>Stima grezza, da confermare con la sessione pilota: circa 1.300 chiamate per giro, 4.000 per sessione, 55.000 in una settimana. La maggior parte viene dai due autori grandi (298 e 115 opere), perché per le citazioni ricevute serve una chiamata per opera.</p>
+    <h3>Q</h3>
+    <ul>
+      <li>Il carico stimato è accettabile per l'API di OpenCitations? Ci sono orari da evitare?</li>
+      <li>Va bene la cache disattivata in tutte le prove?</li>
+      <li>Va bene il numero di sessioni proposto (7 giorni × 2 sessioni × 3 giri), da confermare con il pilota?</li>
+      <li>Aggiungere un editore a 6 cifre (Copernicus, 132.837 pubblicazioni, circa 2.700 chiamate e un'ora per scaricarlo) da misurare a parte 1-3 volte, per mostrare il limite?</li>
+    </ul>
+
+    <h4>Fonti</h4>
+    <ul>
+      <li>Abedi, A., &amp; Brecht, T. (2017). Conducting repeatable experiments in highly variable cloud computing environments. In <em>Proceedings of the ACM/SPEC International Conference on Performance Engineering</em> (pp. 287–292). ACM. https://doi.org/10.1145/3030207.3030229</li>
+      <li>Bermbach, D., &amp; Wittern, E. (2020). Benchmarking web API quality – revisited. <em>Journal of Web Engineering, 19</em>(5–6), 603–646. https://doi.org/10.13052/jwe1540-9589.19563</li>
+      <li>Jain, R. (1991). <em>The art of computer systems performance analysis: Techniques for experimental design, measurement, simulation, and modeling</em>. Wiley. Capitoli 12 e 13 verificati sulle slide del corso dell'autore.</li>
+      <li>Nielsen, J. (1993). <em>Usability engineering</em>. Academic Press. Soglie di 0,1 s, 1 s e 10 s, riprese da Miller (1968); verificate solo su fonte secondaria.</li>
+      <li>Papadopoulos, A. V., Versluis, L., Bauer, A., Herbst, N., von Kistowski, J., Ali-Eldin, A., Abad, C. L., Amaral, J. N., Tůma, P., &amp; Iosup, A. (2021). Methodological principles for reproducible performance evaluation in cloud computing. <em>IEEE Transactions on Software Engineering, 47</em>(8), 1528–1543. https://doi.org/10.1109/TSE.2019.2927908</li>
+      <li>Standard SKG-IF, API: https://skg-if.github.io/api/</li>
+    </ul>
+
+    <!-- ===================== RIUSABILITÀ ===================== -->
+    <h3 class="sezione">Riusabilità</h3>
+    <p>Domanda: Lucinda, configurato per OpenCitations, funziona anche con un altro endpoint SKG-IF? Prova fatta su copie del sito fuori dal repository (il progetto non è stato toccato), con gli endpoint elencati nella pagina ufficiale degli implementatori (https://skg-if.github.io/api/docs/api-implementors.html).</p>
+
+    <h4>Gli endpoint SKG-IF disponibili</h4>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Endpoint</th><th>Risponde?</th><th>Usabile dal browser (CORS)</th><th>Entità</th></tr>
+      <tr><td>OpenCitations</td><td>sì</td><td>sì</td><td>products, persons, organisations, venues</td></tr>
+      <tr><td>OpenAIRE (prod e beta)</td><td>sì</td><td>sì</td><td>products, persons, organisations, grants, datasources; niente venues</td></tr>
+      <tr><td>CLARIN (solo staging)</td><td>sì</td><td>sì</td><td>products, persons, organisations, venues</td></tr>
+      <tr><td>CESSDA (prod e staging)</td><td>sì</td><td>no</td><td>products, persons, organisations, topics; niente venues</td></tr>
+      <tr><td>FSD</td><td>solo products</td><td>no</td><td>products</td></tr>
+      <tr><td>TeslaRIS, OPERAS/GoTriple</td><td>no (errori 500/502)</td><td>–</td><td>–</td></tr>
+      <tr><td>SKG-IF RDA WG</td><td>nessuna API online (solo codice da installare)</td><td>–</td><td>–</td></tr>
+    </table></div>
+    <p>CESSDA prod e staging hanno lo stesso codice e gli stessi filtri; cambiano solo i dati (staging è l'ambiente di prova, con un caricamento diverso). CORS: senza l'header <code>Access-Control-Allow-Origin</code> il browser blocca le risposte, quindi con CESSDA ogni pagina di Lucinda dà "Service unavailable". Si può risolvere solo lato CESSDA.</p>
+
+    <h4>Prova 1: cambiare solo <code>config.js</code></h4>
+    <p>In <code>config.js</code> sono cambiate due righe: indirizzo dell'API (<code>SKGIF_API</code>) e inizio degli identificativi (<code>SKGIF_ID_BASE</code>).</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Pagina</th><th>CLARIN</th><th>OpenAIRE</th><th>CESSDA (con CORS disattivato solo per il test)</th></tr>
+      <tr><td>Ricerca documenti</td><td>funziona</td><td>funziona</td><td>funziona</td></tr>
+      <tr><td>Ricerca autori</td><td>funziona</td><td>funziona</td><td>funziona solo cambiando anche i nomi dei filtri in <code>config.js</code></td></tr>
+      <tr><td>Ricerca organizzazioni</td><td>funziona</td><td>funziona</td><td>funziona</td></tr>
+      <tr><td>Ricerca riviste</td><td>funziona</td><td>"Service unavailable"</td><td>"0 results"</td></tr>
+      <tr><td>Schede (clic su un risultato)</td><td colspan="3">"No template is suitable" su tutti e tre</td></tr>
+    </table></div>
+    <p>Le ricerche sono riusabili, le schede no.</p>
+    <div class="foto">OpenAIRE: ricerca documenti "migration" con solo config.js cambiato (References: 0 non è vero: OpenAIRE non ha cf.cited_by e l'errore viene mostrato come 0)<br><img src="img/riusabilita_openaire_ricerca.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;"></div>
+
+    <h4>Perché le schede non si aprono</h4>
+    <p>Nella ricerca l'indirizzo dice cosa si cerca (<code>value=author/smith</code>), quindi Lucinda sa quale template usare. Nella scheda l'indirizzo contiene solo l'OMID (<code>value=br/061...</code>, <code>value=ra/061...</code>): Lucinda capisce il tipo dal prefisso dell'OMID (<code>br/</code> = documento o rivista, <code>ra/</code> = autore o organizzazione). Gli OMID esistono solo in OpenCitations; gli altri endpoint hanno identificativi propri (OpenAIRE <code>persons/orcid_______::3f98...</code>, CLARIN <code>otf___person___smith_john</code>, CESSDA <code>cessda_person_48bef...</code>), quindi nessun template li riconosce. SKG-IF chiede solo che ogni entità abbia un <code>local_identifier</code>, non come deve essere scritto.</p>
+
+    <h4>Prova 2: il tipo nell'indirizzo della scheda</h4>
+    <p>Sulle copie di CLARIN e OpenAIRE: <code>value=br/{id}</code> e <code>value=ra/{id}</code> sostituiti da <code>value=product:{id}</code>, <code>person:{id}</code>, <code>organisation:{id}</code>, <code>venue:{id}</code>. Il tipo viene dal campo <code>entity_type</code> dei dati SKG-IF. Cambiati: i 4 <code>.hf</code> delle schede, i punti che costruiscono i link alle schede, le pagine JS (tolti <code>br/</code> e <code>ra/</code> scritti a mano) e <code>config.js</code> (come leggere gli ID di quell'endpoint).</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Scheda</th><th>CLARIN</th><th>OpenAIRE</th></tr>
+      <tr><td>Documento</td><td>si apre (dati poveri: autori, data, tipo "Not available")</td><td>si apre; References in errore (manca <code>cf.cited_by</code>), Citations sempre 0</td></tr>
+      <tr><td>Rivista</td><td>si apre</td><td>non esiste (niente venues)</td></tr>
+      <tr><td>Autore</td><td>nome e ID; lista delle opere in errore (manca il filtro <code>contributions.by.local_identifier</code>)</td><td>non provata (vedi sotto)</td></tr>
+      <tr><td>Organizzazione</td><td>nome e ID; lista delle opere in errore (stesso filtro)</td><td>si apre, ma con 398.388.320 pubblicazioni</td></tr>
+    </table></div>
+    <p>Con il tipo nell'indirizzo tutte le schede si aprono. Quanto si riempiono dipende dai filtri e dai dati di ogni endpoint.</p>
+    <p>OpenAIRE non rifiuta il filtro "opere di questa persona/organizzazione": lo ignora e restituisce tutto il database. L'organizzazione risulta quindi con 398 milioni di pubblicazioni e mostra opere a caso; la scheda autore, che scarica tutte le opere, avrebbe provato a scaricarle tutte, per questo non è stata aperta. Un filtro ignorato in silenzio è più pericoloso di un errore: dà risultati sbagliati senza avvisare.</p>
+    <div class="foto">CLARIN: scheda documento aperta con value=product:...<br><img src="img/riusabilita_clarin_documento.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;"></div>
+    <div class="foto">OpenAIRE: scheda organizzazione con il filtro ignorato (398.388.320 pubblicazioni)<br><img src="img/riusabilita_openaire_organizzazione.png" style="max-width:100%; border:1px solid #e5e7eb; border-radius:8px;"></div>
+
+    <h4>Altre cose specifiche di OpenCitations</h4>
+    <ul>
+      <li>logo, favicon, colori, testi della home;</li>
+      <li>messaggio d'errore "The OpenCitations API is temporarily unable to answer" (<code>core.js</code>);</li>
+      <li>etichetta "omid:" davanti agli identificativi;</li>
+      <li>record di citazione (OCI) e grafici dall'API Index: esistono solo in OpenCitations.</li>
+    </ul>
+    <p>Sono personalizzazioni normali (la cartella è <code>example/oc</code>, cioè la configurazione per OpenCitations), non problemi di struttura.</p>
+
+    <h4>Conclusione</h4>
+    <ul>
+      <li>Ricerche: riusabili cambiando solo <code>config.js</code> (CLARIN 4 su 4, OpenAIRE 3 su 4).</li>
+      <li>Schede: legate agli OMID. Con il tipo nell'indirizzo si aprono su qualsiasi endpoint; cambierebbero però gli indirizzi delle schede anche per OpenCitations (salvo tenere <code>br/</code> e <code>ra/</code> come alias).</li>
+      <li>Limiti degli endpoint, non risolvibili da Lucinda: CORS, entità e filtri mancanti, filtri ignorati, dati poveri.</li>
+    </ul>
+    <h3>Q</h3>
+    <ul>
+      <li>La riusabilità con altri endpoint SKG-IF è un obiettivo della tesi o basta segnalarla come risultato?</li>
+      <li>Se è un obiettivo: va bene il tipo nell'indirizzo delle schede (<code>value=person:...</code>), tenendo <code>br/</code> e <code>ra/</code> per OpenCitations?</li>
+      <li>Serve un controllo dei filtri supportati da ogni endpoint, per evitare casi come quello di OpenAIRE?</li>
+    </ul>
+
+    <h3 class="sezione">Interfaccia</h3>
+    <h3>Q</h3>
+    <ul>
+      <li>Piè di pagina: oggi solo "2025 Lucinda v2.0". Aggiungere pochi link testuali come nel sito OpenCitations (es. OpenCitations · SKG-IF API · Documentation · Source code)? Quali?</li>
+    </ul>
+
+  </div>
+</details>
+
+      <!-- USER TESTING -->
 <details open>
+  <summary>
+    14/11 (user testing)
+  </summary>
+  <div class="content">
+
+    <details style="margin:12px 0;">
+      <summary>Analisi lavoro A. – personal notes</summary>
+
+    <p>Note per preparare il test di usabilità di LUCINDA, seguendo il capitolo 7 della tesi di Arcangelo Massari (valutazione di HERITRACE, pp. 105-128). Per ogni punto: cosa ha fatto Arcangelo (verificato sulle pagine della tesi) e cosa proporre per LUCINDA. Da discutere col prof.</p>
+
+    <!-- ===================== LOGICA GENERALE ===================== -->
+    <h3 class="sezione">La logica generale</h3>
+    <p>Il test risponde a una domanda: persone vere riescono a usare il sistema per quello per cui è fatto? Servono due tipi di prova:</p>
+    <ul>
+      <li><strong>numeri</strong>: compiti riusciti, analisi tempi, errori, punteggio SUS. = 4 analisi</li>
+      <li><strong>parole dei partecipanti</strong> (pensare ad alta voce, risposte scritte)</li>
+    </ul>
+    <p>Arcangelo usa un disegno "mixed methods": raccoglie i due tipi di dati insieme, li analizza separatamente e li unisce solo nell'interpretazione finale (p. 105, p. 110)</p>
+
+    <!-- ===================== STEP 1 ===================== -->
+    <h3 class="sezione">Step 1 – Chi sono i partecipanti</h3>
+    <h4>Arcangelo (p. 106)</h4>
+    <ul>
+      <li>Due gruppi, uno per domanda di ricerca: <strong>9 utenti finali</strong> (studiosi, professionisti del patrimonio culturale) e <strong>10 tecnici</strong>.</li>
+      <li>utenti con conoscenza dei metadati bibliografici, un minimo di pratica con le applicazioni web, familiarità con patrimonio culturale o comunicazione scientifica; tecnici con conoscenza delle tecnologie Semantic Web.</li>
+      <li>Esperienza precedente <strong>con il sistema</strong> (non con l'argomento): utenti 8 su 9 (88,9%) non avevano mai usato HERITRACE; tecnici 9 su 10 (90%). Tecnici e SHACL: 4 mai usato, 6 sì. Erano esperti del tema ma alla prima volta con il sistema: è la situazione reale di chi incontra il sistema quando un'istituzione lo adotta.</li>
+    </ul>
+    <h4>Chi sono i "tecnici" (pp. 106, 109)</h4>
+    <ul>
+      <li>Chi installa e configura il sistema per la propria istituzione, non chi lo usa per lavorare sui dati.</li>
+      <li>In HERITRACE configurano due file: gli schemi <strong>SHACL</strong> (quali campi esistono e con quali regole) e le regole di visualizzazione in <strong>YAML</strong> (come appaiono).</li>
+      <li>Nel test hanno ricevuto un HERITRACE configurato solo in parte e due compiti: (a) aggiungere il campo "abstract" agli articoli nello schema SHACL, massimo un valore (22 min); (b) mostrarlo con nome "Abstract", visibile, casella di testo grande, nel file YAML (23 min).</li>
+      <li>Scopo: capire se configurare il sistema è comprensibile anche per chi non conosce SHACL.</li>
+    </ul>
+    <h4>Per LUCINDA</h4>
+    <ul>
+      <li><strong>Gruppo principale</strong>: utenti finali, cioè persone che cercano letteratura e citazioni (dottorandi, ricercatori, bibliotecari, studenti DH). Tra 5 e 8 persone: con 5 utenti si trova già la maggior parte dei problemi (Nielsen, 2000).</li>
+      <li>Chiedere prima del test se hanno mai usato LUCINDA, e se usano OpenCitations, Google Scholar, OpenAlex: un'abitudine può influenzare le aspettative (es. aspettarsi l'ordinamento per numero di citazioni).</li>
+      <li><strong>Tecnici di LUCINDA</strong> = chi scrive o modifica i template (<code>.hf</code> con i blocchi <code>#api</code>, <code>.html</code> con i segnaposto), le funzioni JS (<code>#postprocess</code>, view functions) e <code>config.js</code> per l'endpoint. Compiti possibili: "aggiungi alla scheda autore un campo che arriva già dall'API" oppure "fai puntare l'interfaccia a un altro endpoint SKG-IF".</li>
+      <li>Differenza importante: configurare LUCINDA richiede JavaScript, in HERITRACE bastano file dichiarativi. Il test sarebbe più difficile e richiederebbe un'istanza parziale e istruzioni apposite.</li>
+      <li><strong>Non ancora provato da me</strong>: il cambio di endpoint</li>
+    </ul>
+
+    <!-- ===================== STEP 2 ===================== -->
+    <h3 class="sezione">Step 2 – Preparazione e privacy</h3>
+    <h4>Materiali mandati prima (Arcangelo, p. 106)</h4>
+    <ul>
+      <li>la documentazione di HERITRACE;</li>
+      <li>le istruzioni per registrare lo schermo (i partecipanti si registravano da soli a casa);</li>
+      <li>i requisiti del computer: 1 GB di RAM, 5 GB liberi, browser moderno;</li>
+      <li>il protocollo del test: com'è organizzata la sessione e in che ordine fare i compiti;</li>
+      <li>un pacchetto <strong>Docker</strong> uguale per tutti: HERITRACE già installato e configurato con i dati di prova (100 articoli di OpenCitations Meta).</li>
+    </ul>
+    <h4>Prop Per LUCINDA</h4>
+    <ul>
+      <li>Niente Docker: LUCINDA è una pagina web, basta un <strong>link</strong>.</li>
+      <li>Problema concreto: oggi gira solo su <code>127.0.0.1:5500</code>. Va messa online (es. GitHub Pages); prima vanno sistemati i link assoluti di Pietro.</li>
+      <li>Un foglio con le istruzioni della sessione e i compiti; le istruzioni per registrarsi solo se fanno il test da soli.</li>
+      <li>La documentazione non è necessaria: se si vuole vedere se l'interfaccia si capisce da sola, è meglio non darla (da decidere col prof).</li>
+      <li>Dati non fissi: vengono dall'API live di OpenCitations. Una risposta lenta durante il test è un risultato, non un errore: va annotata.</li>
+    </ul>
+    <h4>Privacy: cosa ha fatto Arcangelo (p. 107)</h4>
+    <p>"Participants signed a privacy consent form informing that personal data including voice recordings would be used for research purposes. The privacy form received approval from the University of Bologna privacy office before testing commenced."</p>
+    <h4>Privacy: l'ordine corretto</h4>
+    <ol>
+      <li><strong>Preparare il modulo una volta sola</strong>, compilando il modello UniBo con i dati del test (obiettivo, dipartimento, cosa si registra, per quanto si tengono i dati, quando si rendono anonimi). Due parti: <strong>informativa</strong> (cosa si fa con i dati) e <strong>consenso</strong> (che la persona firma).</li>
+      <li><strong>Mandarlo all'ufficio privacy e aspettare l'approvazione</strong>, prima di contattare i partecipanti.</li>
+      <li><strong>Ogni partecipante legge e firma prima della sua sessione.</strong> Non serve avere tutte le firme per partire.</li>
+      <li><strong>Solo dopo la firma si registra</strong> quella persona.</li>
+    </ol>
+    <ul>
+      <li>Le firme si conservano insieme ai materiali del test. Se vadano anche consegnate all'ufficio non l'ho trovato scritto: da chiedere.</li>
+      <li>La <strong>liberatoria</strong> è un altro modulo: serve per pubblicare foto o video di una persona. Qui le registrazioni non si pubblicano (si trascrivono e si rendono anonime), quindi basta informativa + consenso.</li>
+      <li>Il parere del Comitato di Bioetica è consigliato, non obbligatorio, per la ricerca non clinica.</li>
+    </ul>
+    <h4>Modulo e contatti UniBo</h4>
+    <ul>
+      <li><strong>Modello ufficiale</strong>: <a href="https://www.unibo.it/it/allegati/esempio-modulo-informativo-trattamento-dei-dati-adulto" target="_blank">Modulo informativo sul trattamento dei dati – adulti</a> (Word). Titolo: "Informazioni sul trattamento dei dati personali ai sensi dell'art. 13 del Regolamento (UE) 2016/679". Parti tra parentesi quadre da compilare (obiettivo, dipartimento, tipo di dati, tempi di anonimizzazione); prevede esplicitamente l'"intervista che sarà audioregistrata/videoregistrata" e la sostituzione dei dati identificativi con un codice; contiene già i contatti di titolare e DPO.</li>
+      <li><a href="https://www.unibo.it/it/allegati/Scheda_Rispettodellaprivacy.pdf/@@download/file/Scheda_Rispettodellaprivacy.pdf" target="_blank">Il rispetto della privacy nella gestione dei dati di ricerca</a> (PDF). Dal riassunto della ricerca web: cosa deve contenere l'informativa, sfocare i volti e distorcere le voci. <em>Non verificato sul testo completo.</em></li>
+      <li><a href="https://www.unibo.it/it/ateneo/privacy-e-note-legali/privacy/informativa-generale-sul-trattamento-dei-dati-personali" target="_blank">Informativa generale UniBo</a>.</li>
+      <li>Comitato di Bioetica: <a href="https://www.unibo.it/it/allegati/indicazioni-per-la-presentazione-delle-richieste-di-parere-al-comitato-di-bioetica/@@download/file/Indicazioni%20presentazione%20richiesta%20al%20Comitato%20Etico%20UniBo.pdf" target="_blank">indicazioni</a> e <a href="https://www.unibo.it/en/attachments/application-form-for-requesting-the-opinion-of-the-bioethics-committee-in-italian/@@download/file/NUOVA%20Scheda%20di%20richiesta%20parere%20al%20Comitato%20di%20Bioetica.docx" target="_blank">scheda di richiesta</a>.</li>
+      <li><strong>Ufficio</strong>: <a href="https://www.unibo.it/it/ateneo/organizzazione-e-sedi/amministrazione-generale/10010/4581" target="_blank">SSRD – Unità Professionale Protezione dei dati personali</a>, Viale Filopanti 3, Bologna. Responsabile: Marco Dettori.</li>
+      <li><strong>Email</strong>: privacy@unibo.it (titolare, l'Università) e dpo@unibo.it (Responsabile della protezione dei dati). <strong>PEC</strong>: scriviunibo@pec.unibo.it. Telefono non indicato.</li>
+      <li>Consiglio: prima di scrivere all'ufficio, chiedere al prof il modulo già approvato di Arcangelo come base.</li>
+    </ul>
+
+    <!-- ===================== STEP 3 ===================== -->
+    <h3 class="sezione">Step 3 – Come si svolge la sessione</h3>
+    <h4>Arcangelo (pp. 105, 109)</h4>
+    <ul>
+      <li>Ognuno da solo, a casa, registrando schermo e voce; pensare ad alta voce ("think-aloud").</li>
+      <li>Massimo 60 minuti, con tempo fisso per fase, in base alla complessità prevista.
+        <ul>
+          <li>Utenti finali: esplorazione libera 2 min; modificare una pubblicazione (aggiungere e riordinare un autore) 8 min; unire duplicati 10 min; ripristinare una versione 7 min; creare una nuova pubblicazione 20 min; SUS 3 min; riflessione scritta 10 min.</li>
+          <li>Tecnici: esplorazione 2 min; SHACL 22 min; YAML 23 min; SUS 3 min; riflessione 10 min.</li>
+        </ul>
+      </li>
+      <li>Chi supera il tempo di un compito viene registrato anche se poi finisce con successo.</li>
+      <li>Compiti come obiettivi, non istruzioni passo passo ("trova…", non "clicca…"): mostrano se l'interfaccia si capisce da sola. Dal facile al difficile per non scoraggiare.</li>
+    </ul>
+    <h4>Per LUCINDA: due strade</h4>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th></th><th>Da soli (come Arcangelo)</th><th>Con me presente online (Teams/Zoom)</th></tr>
+      <tr><td>Pro</td><td>uso più naturale, orari flessibili</td><td>vedo subito dove si bloccano, posso ricordare di parlare ad alta voce</td></tr>
+      <tr><td>Contro</td><td>chi si blocca abbandona; devono saper registrare</td><td>tempo per ogni sessione; la mia presenza influenza</td></tr>
+    </table></div>
+    <p>Proposta: online con me presente, 30-40 minuti (il sistema si consulta, non si modifica: bastano meno compiti).</p>
+    <h4>Bozza di 5-6 compiti, uno per pagina</h4>
+    <ol>
+      <li>Ricerca per ID e scheda documento: "Trova l'articolo con DOI X: quante volte è stato citato, e in che anno di più?"</li>
+      <li>Profilo autore: "Trova l'autore Y: quali sono le sue 3 opere più citate?"</li>
+      <li>Ricerca per titolo e liste: "Trova un articolo su Z e, tra le opere che lo citano, quelle uscite nel 2020."</li>
+      <li>Record di citazione: "Apri la citazione OCI W: quali riferimenti hanno in comune le due opere?"</li>
+      <li>Riviste: "Trova la rivista Scientometrics: chi è l'editore?"</li>
+      <li>Organizzazioni (opzionale): un compito sulla scheda organizzazione.</li>
+    </ol>
+    <p>Esempi da scegliere in anticipo, con documenti di dimensioni medie. I compiti devono toccare almeno un elemento per tipo della tabella SKG-IF: lineare, forzato, non disponibile (vedi step 7).</p>
+    <h4>PC e telefono</h4>
+    <p>Il dispositivo diventa una variabile da confrontare. Due disegni possibili:</p>
+    <ul>
+      <li><strong>A. Ogni persona prova entrambi.</strong> Pro: stesse persone sui due dispositivi, confronto più affidabile con pochi partecipanti. Contro: effetto apprendimento (sul secondo dispositivo si va meglio), da correggere con ordine alternato (metà inizia dal PC, metà dal telefono) e due serie di compiti "gemelle" (stesso tipo, esempi diversi); sessione più lunga (circa 60 min); due SUS, uno per dispositivo.</li>
+      <li><strong>B. Metà su PC, metà su telefono.</strong> Pro: sessioni corte, una serie di compiti. Contro: con 4 persone per gruppo la differenza può dipendere dalle persone e non dal dispositivo.</li>
+    </ul>
+    <p>Proposta: A. Questioni pratiche:</p>
+    <ul>
+      <li>registrare il telefono: online il partecipante condivide lo schermo dall'app di Teams/Zoom e registro io; da soli serve la registrazione schermo del telefono con microfono (più facile sbagliare);</li>
+      <li>telefoni diversi (iPhone/Android, schermi): annotare il modello di ogni partecipante;</li>
+      <li>prestazioni: sul telefono gli scaricamenti lunghi (grafici, "Load all") possono pesare di più; eventualmente aggiungere qualche misura da telefono allo strumento di misura;</li>
+      <li>analisi: per ogni compito esito e tempo PC contro telefono, SUS PC contro telefono; con 5-8 persone numeri descrittivi (mediane), non test statistici.</li>
+    </ul>
+
+    <!-- ===================== STEP 4 ===================== -->
+    <h3 class="sezione">Step 4 – Cosa si raccoglie</h3>
+    <p>Arcangelo usa tre strumenti (p. 110): registrazioni di schermo e voce, questionario SUS, domande aperte scritte.</p>
+    <h4>Ordine nella sessione (p. 109)</h4>
+    <p>Esplorazione libera → compiti → <strong>SUS</strong> (3 min) → <strong>riflessione scritta</strong> (10 min), tutto nei 60 minuti. SUS e domande aperte sono scritti in un modulo: non serve registrarli. Arcangelo non dice se fermava la registrazione.</p>
+    <h4>Il SUS (System Usability Scale)</h4>
+    <ul>
+      <li>Solo <strong>10 frasi chiuse</strong>, ognuna con voto da 1 (per niente d'accordo) a 5 (del tutto d'accordo). Le 4 domande aperte <strong>non</strong> fanno parte del SUS.</li>
+      <li><strong>Standard</strong> (Brooke, 1996): le frasi non vanno cambiate, altrimenti il confronto con gli altri studi non vale (al massimo "sistema" → "sito"). Si usa l'originale inglese o una traduzione italiana validata (Borsci, Federici &amp; Lauriola, 2009, <em>da verificare</em>).</li>
+      <li><strong>Punteggio da 0 a 100</strong> (p. 110): frasi dispari (positive) voto − 1; frasi pari (negative) 5 − voto; somma (max 40) × 2,5. Esempio: 4 a tutte le dispari e 2 a tutte le pari → 15 + 15 = 30 → 75. Non è una percentuale.</li>
+      <li><strong>Soglie</strong> (Sauro, 2016, citato a p. 110): sotto 68 usabilità sotto la media; 68-80,3 sopra la media; sopra 80,3 eccellente. 68 è la media di centinaia di studi; 80,3 il 10% migliore. Esempio di frase per la tesi: "LUCINDA ha ottenuto 74, sopra la media di 68".</li>
+      <li>Arcangelo riporta solo il punteggio totale, non le sottoscale Usability/Learnability, perché la ricerca successiva non le ha confermate (Lewis &amp; Sauro, 2009; 2017).</li>
+    </ul>
+    <h4>Le 4 domande aperte (p. 110)</h4>
+    <ul>
+      <li>"How effectively did HERITRACE support you in these tasks?"</li>
+      <li>"What were the most useful features for your work?"</li>
+      <li>"What were the main weaknesses or frustrating aspects you encountered?"</li>
+      <li>"What additional features would have made this more useful for your work?"</li>
+    </ul>
+    <p>Sono state scritte da lui, non vengono da un questionario standard. Bilanciano domande positive e negative per non influenzare le risposte; nessun limite di lunghezza. Per LUCINDA si possono riusare o adattare, aggiungendo per esempio "Hai notato differenze tra PC e telefono?" o "I tempi di caricamento ti hanno disturbato?".</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th></th><th>SUS</th><th>Domande aperte</th></tr>
+      <tr><td>Quante</td><td>10</td><td>4 (le sue), libere</td></tr>
+      <tr><td>Tipo</td><td>chiuse, voto 1-5</td><td>risposta scritta</td></tr>
+      <tr><td>Risultato</td><td>numero 0-100</td><td>testo da analizzare</td></tr>
+      <tr><td>Le scrivo io?</td><td>no, standard</td><td>sì, si possono adattare</td></tr>
+    </table></div>
+    <h4>Registrazioni e trascrizione</h4>
+    <p>Arcangelo trascrive con VoxTral, un modello di riconoscimento vocale che gira sul computer (le voci non vanno a servizi esterni), poi corregge a mano riguardando i video (p. 110). Perché trascrivere:</p>
+    <ul>
+      <li><strong>analisi</strong>: le etichette dell'analisi qualitativa si mettono su un testo, non su un audio;</li>
+      <li><strong>citazioni</strong>: nel white paper si riportano frasi esatte ("P3: 'pensavo che il grafico fosse cliccabile'");</li>
+      <li><strong>privacy</strong>: la trascrizione si rende anonima (P1, P2…), poi l'audio si può cancellare; su Zenodo va il testo anonimo, non le voci;</li>
+      <li><strong>verifica</strong>: altri possono controllare l'analisi sul testo pubblicato.</li>
+    </ul>
+    <p>Alternativa più leggera: niente registrazione, appunti presi da me durante la sessione online. Niente trascrizione e privacy più semplice, ma non si può riascoltare e qualche commento sfugge.</p>
+
+    <!-- ===================== STEP 5 ===================== -->
+    <h3 class="sezione">Step 5 – Analisi dei numeri</h3>
+    <p>Prima un passaggio di preparazione: Arcangelo guarda tutti i video e, per ogni persona e compito, annota tempo, esito ed errori (p. 111). Ha fatto tutta l'analisi da solo ("as the sole analyst").</p>
+    <h4>1. Esito di ogni compito: 6 etichette (p. 111)</h4>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Etichetta</th><th>Significato</th></tr>
+      <tr><td>complete</td><td>compito finito, risultato funzionante</td></tr>
+      <tr><td>partial</td><td>tentativo incompleto, con qualche progresso</td></tr>
+      <tr><td>success timeout</td><td>stava lavorando bene ma è finito il tempo</td></tr>
+      <tr><td>failed misunderstanding</td><td>ha capito male il compito o la funzione</td></tr>
+      <tr><td>failed bug</td><td>un difetto del sistema ha impedito di finire</td></tr>
+      <tr><td>failed blocked</td><td>ha capito il compito ma si è bloccato e ha rinunciato</td></tr>
+    </table></div>
+    <p>L'etichetta la decide lui guardando il video. Esempio (p. 114): un tecnico mette l'abstract come campo obbligatorio invece che facoltativo → <em>partial</em>. Riporta la percentuale di ogni etichetta per compito e per gruppo (es. 78% di successo nel modificare una pubblicazione, 100% nell'unire autori).</p>
+    <h4>2. Tempi (pp. 111, 114-115)</h4>
+    <ul>
+      <li>Ogni compito è cronometrato: "actual duration measured from task initiation to completion or timeout". Non con un cronometro durante il test, ma <strong>dopo, dalle registrazioni</strong>.</li>
+      <li>Confronta il tempo previsto (8, 10, 7, 20 min; 22, 23 min) con quello reale.</li>
+      <li>Usa la <strong>mediana</strong> e non la media perché i tempi sono asimmetrici: quasi tutti fanno presto, pochi ci mettono tantissimo.</li>
+      <li><strong>Box plot</strong> (Tukey, 1977; Sauro &amp; Lewis, 2010): linea = mediana, scatola = metà centrale delle persone, pallini = casi anomali; più l'intervallo di confidenza al 95% della media (distribuzione t di Student, Sauro 2016). Ogni caso anomalo è spiegato guardando il video (es. "Merge authors": quasi tutti circa 1 min, un pallino a 3,3 min = una persona che ha voluto controllare meglio).</li>
+    </ul>
+    <h4>3. Errori pesati (p. 111)</h4>
+    <ul>
+      <li><strong>Errore</strong> = ogni momento in cui la persona si blocca, deve riprovare o aggirare un ostacolo, o è confusa per colpa dell'interfaccia o della configurazione. Si contano anche se il compito finisce bene.</li>
+      <li>Gravità: <strong>bassa = 1</strong> (piccolo intoppo); <strong>media = 2</strong> (serve un giro alternativo, si perde tempo); <strong>alta = 4</strong> (il compito non si può finire o bisogna ricominciare).</li>
+      <li>Riporta due numeri: quanti errori e la somma dei punti (5 errori piccoli = 5 punti non pesano come 2 bloccanti = 8 punti).</li>
+      <li>Per ogni errore annota sintomo, causa ed esito, per risalire al problema.</li>
+    </ul>
+    <h4>4. SUS</h4>
+    <p>Media, deviazione standard, mediana, minimo-massimo, per gruppo. Risultati: utenti 78,9 (sopra la media), tecnici 83,8 (eccellente).</p>
+    <p>Tutto descrittivo, niente test statistici.</p>
+    <h4>Da dove vengono (letteratura o scelte sue)</h4>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Parte</th><th>Fonte citata</th></tr>
+      <tr><td>Questionario SUS</td><td>Brooke (1996)</td></tr>
+      <tr><td>Soglie 68 / 80,3</td><td>Sauro (2016)</td></tr>
+      <tr><td>Solo punteggio SUS totale</td><td>Lewis &amp; Sauro (2009, 2017)</td></tr>
+      <tr><td>Analisi qualitativa (grounded theory)</td><td>Corbin &amp; Strauss (2008)</td></tr>
+      <tr><td>Test a casa, non in laboratorio</td><td>Kieffer, Sangiorgi &amp; Vanderdonckt (2015)</td></tr>
+      <tr><td>Box plot, mediana invece della media</td><td>Sauro &amp; Lewis (2010), Tukey (1977)</td></tr>
+      <tr><td>Intervallo di confidenza con pochi partecipanti</td><td>Sauro (2016)</td></tr>
+    </table></div>
+    <p><strong>Senza citazione (p. 111), quindi scelte sue</strong>: le 6 etichette, la definizione di errore, le 3 gravità con pesi 1/2/4. Le descrive come "a protocol". Le idee di base (successo pieno/parziale, gravità dei problemi) sono comuni nella letteratura sull'usabilità (es. la scala di gravità di Nielsen, <em>da verificare</em>), ma la combinazione è sua: si può riusare citando lui ("following the protocol of Massari, 2025"); se si cambia, dichiararlo come adattamento.</p>
+    <h4>Per LUCINDA</h4>
+    <ul>
+      <li>Stessi esiti e tempi; lo script R ha già mediana e bootstrap, il calcolo del SUS si aggiunge facilmente.</li>
+      <li>Un esito in più: <strong>"rallentato/bloccato dall'API"</strong>, per distinguere i problemi dell'interfaccia da quelli di SKG-IF/OpenCitations (SQ5 contro SQ6).</li>
+      <li>Errori pesati: sì, semplificati.</li>
+      <li>Tempi: se registro, li prendo dal video; se prendo solo appunti, segno io inizio e fine di ogni compito.</li>
+      <li>Da decidere: il tempo di caricamento conta nel tempo del compito? Tenerlo dentro con l'etichetta "rallentato dall'API", oppure annotare a parte l'attesa, così si sa quanta parte dipende dall'API e quanta dalla persona.</li>
+    </ul>
+
+    <!-- ===================== STEP 6 ===================== -->
+    <h3 class="sezione">Step 6 – Analisi delle parole (grounded theory)</h3>
+    <p>Analizza <em>cosa dicono</em> i partecipanti. "Grounded": le conclusioni nascono dai dati, non da idee che si avevano prima. Fonti analizzate: trascrizioni (cosa dicono ad alta voce) e risposte scritte alle domande aperte. Arcangelo la fa separatamente per i due gruppi (per i tecnici 263 etichette, p. 126).</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>#</th><th>Passaggio</th><th>Cosa produce</th></tr>
+      <tr><td>1</td><td>Open coding</td><td>un'etichetta per ogni frase significativa, riga per riga, se possibile con le parole del partecipante ("in vivo coding"); ogni etichetta segnata positiva, negativa o neutra</td></tr>
+      <tr><td>2</td><td>Axial coding</td><td>gruppi di etichette simili, ognuno con nome, descrizione, compiti in cui compare e frequenza; confronto costante tra gruppi (simile? diverso? da unire?)</td></tr>
+      <tr><td>3</td><td>Selective coding</td><td>la categoria centrale e una "teoria" che spiega il quadro</td></tr>
+    </table></div>
+    <h4>Esempio inventato su LUCINDA</h4>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Frase del partecipante</th><th>Etichetta</th></tr>
+      <tr><td>P2: "aspetto… ma sta ancora caricando?"</td><td>attesa caricamento</td></tr>
+      <tr><td>P5: "ci mette tanto a fare il grafico"</td><td>attesa caricamento</td></tr>
+      <tr><td>P3: "vorrei ordinare per numero di citazioni"</td><td>manca ordinamento</td></tr>
+      <tr><td>P1: "che bello che posso cliccare sull'anno"</td><td>grafico utile</td></tr>
+      <tr><td>P4: "non capisco cosa sia l'OMID"</td><td>termine non chiaro</td></tr>
+    </table></div>
+    <p>Gruppi: <strong>Lentezza</strong>, <strong>Funzioni mancanti</strong>, <strong>Linguaggio tecnico</strong>, <strong>Visualizzazioni apprezzate</strong>. Possibile frase finale: "Gli utenti capiscono l'interfaccia e apprezzano i grafici, ma la lentezza dell'API e la mancanza di ordinamento li frenano." (solo esempio).</p>
+    <p>La teoria di Arcangelo per i tecnici (p. 126), in sostanza: i tecnici riescono a configurare il sistema imparando dagli esempi già presenti nei file, ma questo richiede competenze che i non tecnici non hanno.</p>
+    <h4>Letteratura o scelte sue</h4>
+    <ul>
+      <li>Dalla letteratura, Corbin &amp; Strauss (2008), citato a p. 105: i 3 passaggi, l'in vivo coding, il confronto costante.</li>
+      <li>Aggiunte sue (pp. 111-112, senza citazione): segno positivo/negativo/neutro; nello stesso gruppo solo etichette con lo stesso segno; un software di controllo che verifica che il 100% delle etichette sia in un gruppo e il 100% dei gruppi nella teoria.</li>
+    </ul>
+    <h4>Per LUCINDA: versione leggera</h4>
+    <ol>
+      <li>etichette su un foglio Excel (partecipante, frase, etichetta, positiva/negativa);</li>
+      <li>4-6 gruppi;</li>
+      <li>grafico a barre delle frequenze;</li>
+      <li>2-3 frasi di conclusione con qualche citazione dei partecipanti.</li>
+    </ol>
+    <p>Da dichiarare: "analisi ispirata alla grounded theory (Corbin &amp; Strauss, 2008), in forma semplificata"; citare Arcangelo se si riprendono le sue regole.</p>
+    <h4>Riepilogo di cosa analizza Arcangelo</h4>
+    <p>4 analisi quantitative (esiti, tempi, errori, SUS) + 3 passaggi qualitativi (open, axial, selective) + 1 tabella finale che li collega.</p>
+
+    <!-- ===================== STEP 7 ===================== -->
+    <h3 class="sezione">Step 7 – Risposta alle domande e limiti</h3>
+    <h4>Arcangelo: tabella 7.1 (p. 127)</h4>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Requisito</th><th>Come è realizzato</th><th>Compito che lo verifica</th><th>Risultato</th></tr>
+      <tr><td>Tracciare le modifiche</td><td>registra chi/quando/cosa, versioni, Time Machine</td><td>Compito 3: ripristinare una versione</td><td>78% di successo; apprezzato come rete di sicurezza</td></tr>
+      <tr><td>Usabilità per esperti non tecnici</td><td>moduli, autocompletamento, unione duplicati</td><td>Compiti 1-4 degli utenti</td><td>67-100% di successo; SUS 78,9</td></tr>
+      <tr><td>Personalizzazione flessibile</td><td>SHACL + YAML</td><td>Compiti 1-2 dei tecnici</td><td>90% di successo; SUS 83,8</td></tr>
+      <tr><td>Integrazione con collezioni RDF esistenti</td><td>connessione diretta via SPARQL</td><td>preparazione del test</td><td>sottoinsieme di OC Meta usato senza conversioni</td></tr>
+    </table></div>
+    <p>Limiti del sistema dichiarati subito dopo (pp. 127-128): la creazione di nuove schede confonde; manca la ricerca (chiesta da 6 utenti su 9); la configurazione a file dipende dai tecnici; alcuni bug.</p>
+    <h4>Limiti del sistema e limiti dello studio</h4>
+    <ul>
+      <li>Nell'esito la separazione c'è: "failed bug" (colpa del sistema) è distinto da "failed misunderstanding" (la persona ha capito male).</li>
+      <li>Nelle pagine lette non c'è una sezione dedicata ai limiti dello studio (pochi partecipanti, analista unico); dice solo che ha analizzato tutto da solo. Non ho riletto tutte le 24 pagine.</li>
+      <li>Per LUCINDA: separarli esplicitamente. Limiti di LUCINDA/SKG-IF: lentezza, niente ordinamento, profilo rivista incompleto. Limiti del test: pochi partecipanti, analista unico, persone del giro universitario.</li>
+    </ul>
+    <h4>Per LUCINDA: collegare alla tabella SKG-IF per pagina</h4>
+    <p>La tabella in <code>skgif-pagine.html</code> dice per ogni elemento se SKG-IF lo permette in modo <strong>lineare</strong>, <strong>forzato</strong> (es. grafici, ordinamento: molte chiamate perché l'API non li offre) o <strong>non disponibile</strong> (es. pubblicazioni della rivista). Si aggiungono le colonne del test (risultati inventati, solo per la forma):</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Pagina / elemento</th><th>Con SKG-IF</th><th>Compito</th><th>Cosa è successo</th></tr>
+      <tr><td>Profilo autore – grafico citazioni</td><td>forzato (1 chiamata per opera)</td><td>trova l'anno con più citazioni</td><td>es. 3 su 6 hanno aspettato oltre 1 minuto</td></tr>
+      <tr><td>Scheda documento – dati</td><td>lineare</td><td>trova la rivista di un articolo</td><td>es. tutti in meno di 1 minuto</td></tr>
+      <tr><td>Profilo rivista – pubblicazioni</td><td>non disponibile</td><td>…</td><td>es. cercavano la lista e non l'hanno trovata</td></tr>
+    </table></div>
+    <p>Se le persone si bloccano dove la tabella dice "forzato" o "non disponibile", il problema viene dai limiti di SKG-IF; se si bloccano su elementi "lineari", è un problema di design dell'interfaccia.</p>
+
+    <!-- ===================== STEP 8 ===================== -->
+    <h3 class="sezione">Step 8 – Pubblicazione</h3>
+    <ul>
+      <li>Arcangelo (p. 106): tutto su Zenodo (Massari, 2025b): pacchetti Docker, trascrizioni anonime, codifiche a tutti i livelli, risposte scritte, SUS, analisi.</li>
+      <li>Per LUCINDA: lo stesso archivio Zenodo già previsto (compiti, SUS, codifiche, appunti o trascrizioni anonime).</li>
+    </ul>
+
+    <!-- ===================== DOMANDE ===================== -->
+    <h3>Q</h3>
+    <ul>
+      <li><strong>Partecipanti</strong>: bastano 5-8 utenti finali? Serve anche il gruppo tecnico per la riusabilità (SQ2, SQ8), o basta che la verifichi io collegando LUCINDA a un altro endpoint?</li>
+      <li><strong>PC e telefono</strong>: ogni partecipante prova entrambi o si divide il gruppo? Un SUS per dispositivo? Il confronto è una domanda di ricerca a sé (dentro SQ5) o un'osservazione in più? Telefoni dei partecipanti o uno uguale per tutti?</li>
+      <li><strong>Privacy</strong>: la procedura è approvazione dell'ufficio e poi firma di ogni partecipante? Posso avere il modulo approvato di Arcangelo come base? Le firme le tengo io o vanno consegnate? Serve il parere del Comitato di Bioetica? Quanto ci mette di solito l'ufficio?</li>
+      <li><strong>Registrazioni</strong>: registrare la voce o bastano i miei appunti?</li>
+      <li><strong>Modalità</strong>: da soli come Arcangelo, o online con me presente?</li>
+      <li><strong>Lingua</strong>: test in italiano o inglese, quindi SUS inglese o italiano validato? Posso adattare le domande aperte (PC/telefono, tempi)?</li>
+      <li><strong>Documentazione</strong>: darla prima del test o no?</li>
+      <li><strong>Pubblicazione</strong>: posso mettere LUCINDA online (GitHub Pages) per il test?</li>
+      <li><strong>Compiti</strong>: vanno bene questi 5-6? Un compito sui casi lenti (documento molto citato) o li teniamo fuori? Il tempo di caricamento conta nel tempo del compito?</li>
+      <li><strong>Analisi</strong>: vanno bene etichette e pesi di Arcangelo (con l'aggiunta "rallentato dall'API"), o servono fonti esterne? Grounded theory leggera o completa?</li>
+      <li><strong>Tempi</strong>: il test entro Natale è realistico, considerando la privacy?</li>
+    </ul>
+
+    <h4>Fonti</h4>
+    <ul>
+      <li>Massari, A. (2025). Tesi di dottorato, capitolo 7 "Evaluation" (HERITRACE), pp. 105-128.</li>
+      <li>Brooke, J. (1996). SUS: A "quick and dirty" usability scale. (citato da Massari)</li>
+      <li>Corbin, J., &amp; Strauss, A. (2008). <em>Basics of qualitative research</em> (3rd ed.). (citato da Massari)</li>
+      <li>Sauro, J. (2016); Sauro, J., &amp; Lewis, J. R. (2010); Lewis, J. R., &amp; Sauro, J. (2009; 2017); Kieffer, S., Sangiorgi, U. B., &amp; Vanderdonckt, J. (2015); Tukey, J. W. (1977). (citati da Massari, riferimenti completi da prendere dalla sua bibliografia)</li>
+      <li>Nielsen, J. (2000). Why you only need to test with 5 users.</li>
+      <li>Borsci, S., Federici, S., &amp; Lauriola, M. (2009). Versione italiana del SUS. <em>Da verificare.</em></li>
+      <li>Modulistica UniBo: vedi link nello step 2.</li>
+    </ul>
+
+    </details>
+
+    <p>Proposta: ogni persona prova PC e telefono, test online in videochiamata, registro io.</p>
+
+    <!-- ===================== PARTECIPANTI E SERIE ===================== -->
+    <h3 class="sezione">Partecipanti, dispositivi e serie di compiti</h3>
+    <p>6 persone. Metà comincia dal telefono, metà dal PC. Due serie "gemelle" (A e B): stessi compiti, risorse diverse</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Partecipante</th><th>Primo dispositivo</th><th>Serie</th><th>Secondo dispositivo</th><th>Serie</th></tr>
+      <tr><td>P1</td><td>Telefono</td><td>A</td><td>PC</td><td>B</td></tr>
+      <tr><td>P2</td><td>PC</td><td>A</td><td>Telefono</td><td>B</td></tr>
+      <tr><td>P3</td><td>Telefono</td><td>B</td><td>PC</td><td>A</td></tr>
+      <tr><td>P4</td><td>PC</td><td>B</td><td>Telefono</td><td>A</td></tr>
+      <tr><td>P5</td><td>Telefono</td><td>A</td><td>PC</td><td>B</td></tr>
+      <tr><td>P6</td><td>PC</td><td>B</td><td>Telefono</td><td>A</td></tr>
+    </table></div>
+
+    <!-- ===================== COMPITI ===================== -->
+    <h3 class="sezione">Compiti (uguali per la serie A e la serie B)</h3>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>#</th><th>Obiettivo per il partecipante</th><th>Partenza</th><th>Pagine e funzioni provate</th><th>Tempo max</th></tr>
+      <tr><td>1</td><td>"Trova l'articolo con DOI <em>[doi]</em>. In quale rivista è uscito? Chi è l'editore?"</td><td>home</td><td>ricerca per ID, scheda documento (Source, Publisher), eventualmente scheda rivista</td><td>3 min</td></tr>
+      <tr><td>2</td><td>"Quante volte è stato citato? In quale anno ha ricevuto più citazioni?"</td><td>pagina del compito 1</td><td>contatore citazioni, grafico per anno</td><td>3 min</td></tr>
+      <tr><td>3</td><td>"Tra le opere che lo citano, quante sono uscite nel <em>[anno]</em>? Scarica quella lista in BibTeX."</td><td>pagina dell'articolo (link mio)</td><td>tab Citations, filtro anno o clic sul grafico, Export</td><td>4 min</td></tr>
+      <tr><td>4</td><td>"Cerca l'articolo intitolato <em>[titolo]</em>. Apri il profilo del primo autore: in quale anno ha pubblicato di più? Su quale rivista pubblica più spesso?"</td><td>home</td><td>ricerca per titolo, link autore, profilo autore, grafico, Top sources</td><td>4 min</td></tr>
+      <tr><td>5</td><td>"Apri la citazione con OCI <em>[oci]</em>. Quante opere sono citate da entrambi i lavori? Scrivi il titolo di una."</td><td>home</td><td>campo OCI della home, record di citazione, Shared references</td><td>5 min</td></tr>
+    </table></div>
+    <p>Totale circa 19 minuti per dispositivo max.</p>
+
+    <!-- ===================== SCALETTA ===================== -->
+    <h3 class="sezione">Scaletta della sessione (online, circa 70 minuti)</h3>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Fase</th><th>Tempo</th><th>Cosa succede</th></tr>
+      <tr><td>0. Giorni prima</td><td>–</td><td>Modulo privacy firmato e restituito. Mando link Teams e istruzioni: app Teams installata sul telefono e pc, telefono carico, "Non disturbare" attivo durante la sessione + mandare istruzioni sessione, link etc.</td></tr>
+      <tr><td>1. Accoglienza</td><td>3 min</td><td></td></tr>
+      <tr><td>2. Consenso e registrazione</td><td>2 min</td><td>Conferma a voce del consenso firmato, poi avvio la registrazione.</td></tr>
+      <tr><td>3. Questionario iniziale breve</td><td>3 min</td><td>Ruolo e disciplina; quanto spesso cerca letteratura/citazioni; strumenti usati (Google Scholar, OpenAlex, Scopus/WoS, OpenCitations); ha mai usato LUCINDA o il browser di OC; usa il telefono per cercare articoli; modello del telefono, browser di PC e telefono.</td></tr>
+      <tr><td>4. Dispositivo 1</td><td>25 min</td><td>Prova di condivisione dello schermo (1 min), esplorazione libera (2 min), compiti 1–5 (circa 19 min), <a href="https://measuringu.com/sus/" target="_blank">SUS</a> (3 min).</td></tr>
+      <tr><td>5. Cambio dispositivo</td><td>3 min</td><td>La persona entra nella chiamata anche dal telefono (o torna al PC), microfono del telefono spento, condivide lo schermo.</td></tr>
+      <tr><td>6. Dispositivo 2</td><td>23 min</td><td>Esplorazione libera (1 min), compiti 1–5 dell'altra serie, SUS "pensando a questa versione" (3 min).</td></tr>
+      <tr><td>7. Domande finali</td><td>8 min</td><td>Domande aperte (sotto), scritte in un modulo; poi, se c'è tempo, due parole a voce.</td></tr>
+      <tr><td>8. Chiusura</td><td>2 min</td><td></td></tr>
+    </table></div>
+    <p>SUS: 10 frasi standard (Brooke), testo su <a href="https://measuringu.com/sus/" target="_blank">MeasuringU</a>; da preparare come modulo online, in inglese o nella versione italiana validata</p>
+
+    <h4>A cosa fare attenzione</h4>
+    <ul>
+      <li><strong>Registrazione</strong>--> controllare lo spazio prima. == tenere liberi almeno 20–30 GB per 6 sessioni</li>
+      <li><strong>Telefono</strong>: annotare modello, sistema (iOS/Android), browser (Safari/Chrome). Schermo in verticale, notifiche spente, audio solo dal PC (niente eco).</li>
+      <li><strong>PC</strong>: annotare browser e dimensione dello schermo?; zoom del browser al 100%.</li>
+      <li><strong>Testo dei compiti</strong>: lo leggo a voce e lo incollo in chat uno alla volta (durante la parte su telefono lo leggono sul PC)?.</li>
+    </ul>
+
+    <h4>Domande finali</h4>
+    <ol>
+      <li>"Useresti LUCINDA nel tuo lavoro? Per fare cosa, e al posto di (o insieme a) quale strumento?</li>
+      <li>Quali funzioni hai trovato più utili?</li>
+      <li>Quali sono stati i punti deboli o gli aspetti più frustranti?</li>
+      <li>Quali funzioni la renderebbero più utile per il tuo lavoro?</li>
+      <li>Hai notato differenze tra PC e telefono? Quale useresti, e per fare cosa?</li>
+    </ol>
+    <p class="qa-nota">1–4: quelle di Arcangelo adattate (positive e negative bilanciate). 5: il confronto tra dispositivi</p>
+
+    <!-- ===================== RISORSE ===================== -->
+    <h3 class="sezione">Risorse</h3>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>Compito</th><th>Cosa serve</th><th>Serie A</th><th>Serie B</th></tr>
+      <tr><td>1</td><td>DOI che apre direttamente la scheda; rivista e publisher nei dati</td><td>DOI <code>10.1371/journal.pbio.3000366</code> → <strong>PLOS Biology</strong>, <strong>Public Library Of Science (PLoS)</strong></td><td>DOI <code>10.1038/srep29616</code> → <strong>Scientific Reports</strong>, <strong>Springer Science And Business Media Llc</strong></td></tr>
+      <tr><td>2</td><td>40–150 citazioni su più anni, anno di picco chiaro</td><td><strong>79</strong>; picco <strong>2021</strong> (18; poi 13)</td><td><strong>94</strong>; picco <strong>2020</strong> (16; poi 13)</td></tr>
+      <tr><td>3</td><td>Anno senza opere doppie nella lista</td><td><strong>2020</strong> → <strong>10</strong></td><td><strong>2023</strong> → <strong>10</strong></td></tr>
+      <tr><td>4</td><td>Titolo con 1 solo risultato; primo autore con un solo record, 20–60 opere, picco chiaro</td><td>"Kinetic Modeling Of Lipase-Catalyzed Glycerolysis Of Olive Oil" → Fernando Augusto Pedersen Voll (38 opere): <strong>2013</strong> (12; poi 7); <strong>The Journal Of Chemical Thermodynamics</strong> (10)</td><td>"Global Warming Decreases Connectivity Among Coral Populations" → Joanna Figueiredo (33 opere): <strong>2008</strong> (5; poi 3); <strong>Aquaculture</strong> (7)</td></tr>
+      <tr><td>5</td><td>Due opere con 20–60 riferimenti, almeno 2–3 in comune</td><td>OCI <code>061703340492-06140854309</code> (26 e 23 rif.) → <strong>5</strong></td><td>OCI <code>061602273683-06210213785</code> (42 e 21 rif.) → <strong>5</strong></td></tr>
+    </table></div>
+
+    <!-- ===================== DOMANDE  ===================== -->
+    <h3 class="sezione">Domande</h3>
+    <div class="qa">
+      <label for="qa-1">Chi partecipa?</label><textarea id="qa-1" data-qa></textarea>
+      <label for="qa-2">Quante persone?</label><textarea id="qa-2" data-qa></textarea>
+      <label for="qa-3">Solo utenti finali o anche tecnici?</label><textarea id="qa-3" data-qa></textarea>
+      <label for="qa-4">Analisi separata di numeri e parole, unite alla fine come Arcangelo?</label><textarea id="qa-4" data-qa></textarea>
+      <label for="qa-5">Tra i materiali da preparare: quale documentazione di LUCINDA allegare (se serve)?</label><textarea id="qa-5" data-qa></textarea>
+      <label for="qa-6">Creo un link con GitHub Pages, usabile su PC e telefono?</label><textarea id="qa-6" data-qa></textarea>
+      <label for="qa-7">Il modulo privacy è <a href="https://www.unibo.it/it/allegati/esempio-modulo-informativo-trattamento-dei-dati-adulto" target="_blank">questo</a>?</label><textarea id="qa-7" data-qa></textarea>
+      <label for="qa-8">Dopo le firme dei partecipanti, devo rimandare qualcosa all'ufficio privacy?</label><textarea id="qa-8" data-qa></textarea>
+      <label for="qa-9">Modalità di svolgimento della sessione?</label><textarea id="qa-9" data-qa></textarea>
+      <label for="qa-10">Lingua della sessione?</label><textarea id="qa-10" data-qa></textarea>
+      <label for="qa-11">Quanto deve durare la sessione tipo 60 min?</label><textarea id="qa-11" data-qa></textarea>
+      <label for="qa-12">Cosa analizzare nell'analisi quantitativa e quali passaggi fare in quella qualitativa?</label><textarea id="qa-12" data-qa></textarea>
+      <label for="qa-13">Seguo esattamente l'esempio di Arcangelo per l'analisi o modifico qualcosa?</label><textarea id="qa-13" data-qa></textarea>
+    </div>
+    <button type="button" class="qa-copia" id="qa-copia">Copia tutte le risposte</button>
+
+  </div>
+</details>
+
+      <!-- SETTIMANA 6 -->
+<details>
   <summary>
     09/11/2026
   </summary>
@@ -1872,6 +2508,26 @@ if (l_callsparql.length === 0) {
         if (e.key === 'Escape') chiudi();
         if (e.key === 'ArrowLeft') sposta(-1);
         if (e.key === 'ArrowRight') sposta(1);
+      });
+    })();
+
+    // Risposte alle domande (.qa): salvate nel browser mentre si scrive, copiabili tutte insieme
+    (function () {
+      const campi = Array.from(document.querySelectorAll('textarea[data-qa]'));
+      campi.forEach(t => {
+        try { t.value = localStorage.getItem('logbook-' + t.id) || ''; } catch (e) { /* storage non disponibile */ }
+        t.addEventListener('input', () => {
+          try { localStorage.setItem('logbook-' + t.id, t.value); } catch (e) { /* storage non disponibile */ }
+        });
+      });
+      const bottone = document.getElementById('qa-copia');
+      if (!bottone) return;
+      bottone.addEventListener('click', () => {
+        const testo = campi.map(t => 'Q: ' + document.querySelector('label[for="' + t.id + '"]').textContent.trim() + '\nR: ' + t.value.trim()).join('\n\n');
+        navigator.clipboard.writeText(testo).then(() => {
+          bottone.textContent = 'Copiate!';
+          setTimeout(() => { bottone.textContent = 'Copia tutte le risposte'; }, 1500);
+        });
       });
     })();
   </script>
