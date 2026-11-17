@@ -234,6 +234,7 @@
       .content { padding: 16px 18px 20px; }
       .content pre { font-size: 0.75rem; padding: 10px 12px; }
     }
+    mark.prof { background: #fff176; color: #b71c1c; font-weight: 600; padding: 0 3px; border-radius: 3px; }
   </style>
 </head>
 <body>
@@ -263,8 +264,8 @@
       <li>durata sessione: circa 30 min per allegerire carico cognitivo dell'utente</li>
       <li>una serie di 5/6 tasks indipendenti e agire su ciascun task indipendetemente</li>
       <li>ultimo task piu complesso</li>
-      <li>lingua ita o en</li>
-      <li>durata dei singoli tasks: misurare quanto ci metto io e moltiplicare x N: se supera tempo massimo dichiarare task come fallito gravemente</li>
+      <li>lingua ita o en = <mark class="prof">DARE A CIASCUNO LA POSSIBILITà DI SCEGLIERE LA LINGUA CHE PREFERISCE TRA ITA E EN</mark></li>
+      <li>durata dei singoli tasks: misurare quanto ci metto io e moltiplicare x N <mark class="prof">(2/3)</mark>: se supera tempo massimo dichiarare task come fallito gravemente</li>
       <li>SUS modulo scritto</li>
       <li>domande aperte: rispondere oralmente</li>
       <li>modalità sessione: videochiamata in cui registro tutto io ma dichiarare i limiti della modalità videochiamata (es: condizionamento dallamia presenza etc)</li>
@@ -287,6 +288,7 @@
       <li>Lewis (1982): uno di quattro modi per fissare il limite è prendere il tempo dell'esperto o il più veloce e porre la condizione inaccettabile a 1,5 volte "(or other multiple)".</li>
       <li><a href="https://measuringu.com/papers/hcii2005task_times.pdf" target="_blank">Sauro e Kindlund (2005)</a>: su 36 casi, rapporto tra il limite ricavato dagli utenti soddisfatti e il tempo dell'esperto da 1,1 a 7,6, media 3,2;il tempo dell'esperto è un "a rough guide".</li>
       <li><a href="https://measuringu.com/task-times/" target="_blank">Sauro (2011, MeasuringU)</a>: 1,5 "(or another multiple)"; "It's unclear what a good multiple should be"</li>
+      <li><mark class="prof">FARE UNA STIMA TRA QUANTO CI METTO IO E QUANTO CI METTE UTENTE PILOTA E MOLTIPLICARE X N (2/3) PER STABILIRE IL TEMPO MASSIMO</mark></li>
     </ul>
     <p>Come mi cronometro: parto quando ho letto il compito e sono sulla pagina di partenza, mi fermo quando ho la risposta o il file salvato. L'attesa dell'API è inclusa (anche i partecipanti). </p>
 
@@ -295,6 +297,7 @@
       <tr><th>Fase</th><th>Durata</th><th>Contenuto</th></tr>
       <tr><td>1. Domande iniziali</td><td></td><td>Hai mai usato questa piattaforma? Ci sono piattaforme simili che usi di solito? Quali?</td></tr>
       <tr><td>2. Esplorazione libera</td><td>max 2 min</td><td>navigazione senza compiti</td></tr>
+      <tr><td colspan="3"><mark class="prof">PRESENTARE UNA MECCANICA DANDO A TUTTI LE STESSE BASI PER PARTIRE, COSI TUTTI PARTONO DALLA STESSA BASE DI CONOSCIENZA (5 MIN)</mark></td></tr>
       <tr><td>3. Compiti</td><td></td><td>i 6 compiti della tabella, uno alla volta, ciascuno con il suo tempo massimo</td></tr>
       <tr><td>4. SUS</td><td></td><td>modulo scritto, 10 domande</td></tr>
       <tr><td>5. Domande aperte finali</td><td></td><td>a voce, 2 positive e 2 negative:
@@ -312,6 +315,7 @@
       <li>github pages</li>
       <li>modulo della privacy</li>
       <li>materiali da mandare prima: istruzioni della sessione e guidelines</li>
+      <li><mark class="prof">APPROFONDIRE LA QUESTIONE DELL'AMBIENTE DI STAGING CHE è UN AMBIENTE ONLINE/WEB DIETRO LE QUINTE: SI POTREBBE PENSARE DI PUNTARE A UN'ALTRA API PER VELOCIZZARE IL SISTEMA</mark></li>
     </ul>
     <!-- ===================== PROPOSTA: MISURE DEI TEMPI ===================== -->
     <h3 class="sezione">Misure dei tempi di caricamento – proposta</h3>
@@ -447,6 +451,7 @@
       <li><strong>Schede</strong>: non si aprono ("No template is suitable"). L'indirizzo della scheda contiene l'OMID (<code>br/…</code>, <code>ra/…</code>) e LUCINDA sceglie il template dal prefisso; gli OMID esistono solo in OpenCitations, gli altri endpoint hanno identificativi propri, quindi nessun template li riconosce.</li>
       <li><strong>Soluzione</strong>: il tipo nell'indirizzo della scheda (<code>value=product:{id}</code>, <code>person:</code>, <code>organisation:</code>, <code>venue:</code>), preso dal campo <code>entity_type</code> dei dati SKG-IF per far aprire le schede; quanto si riempiono dipende dai filtri e dai dati dell'endpoint.</li>
     </ul>
+    <p><mark class="prof">SE TI BASI SU SKG-IF CE LI HAI DEI TIPI DI DEFUALT COME VENUE ETC (TEMPLATE GENERICO SU RESEARCH PRODUCT CHE TI FA VEDERE TUTTE LE INFO = è UN TEMPLATE GENERALE). LO DEVI FARE PER FORZA CON ASK. CI VORREBBERO 4 SCHEDE DIVERSE PER OGNUNO DI QUESTI TIPI CHE SE NON MATCHA CON QUELLE 4 MACRORISORSE CI SONO QUESTE SCHEDE DI RIPIEGO. BACKUP LANDING PAGE PER LA MACRORISORSA. COSA PIU DELICATA SONO I RESEARCH PRODUCT GLI ALTRI SONO PIU FACILI. QUINDI BENDANDOSI GLI OCCHI, PER UNA SOLA QUESTIONE DI RIUSABILITà, BISOGNA CREARE DELLE SCHEDE DI BACKUP PERCHE SE PER ESEMPIO NON HO MATCH SU JOURNAL ARTICLE ALMENO HO LA SCHEDA PER LA LIYERATURE. POI INOLTRE SI PUO LAVORARE SU FILE DI CONFIGURAZIONE: PER GESTIRE TUTTO TRAMITE CONFIGURAZIONE POSSO PROVARE A SPEGNERE/DISATTIVARE QUELLE RISORSE CHE QUELL'ENDPOINT NON GESTISCE.</mark></p>
     <details style="margin:12px 0;">
       <summary>Notes</summary>
       <div style="padding:12px;">
